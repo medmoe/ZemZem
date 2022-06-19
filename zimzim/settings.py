@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # my apps
-    'zemzem',
+    'zemzem.apps.ZemzemConfig',
     # third party apps
     'rest_framework',
 ]
