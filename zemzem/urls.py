@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import CustomerList
+from .views import CustomerSignUp, CustomerLogin
 
 urlpatterns = [
-    path('customers/', CustomerList.as_view()),
+    path('signup/', CustomerSignUp.as_view()),
+    path('login/', CustomerLogin.as_view())
 ]
