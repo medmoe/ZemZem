@@ -1,5 +1,6 @@
 import React, {FormEvent, useState} from 'react';
 import axios from "axios";
+import {NavigationBar} from "../homepage/NavigationBar";
 
 interface CustomerData {
     first_name: string,
@@ -43,15 +44,15 @@ export function CustomerRegistration () {
     }
     const handleChange = (event: FormEvent) => {
         const target = event.target as HTMLInputElement;
-        const name = target.name;
         setCustomerData({
             ...customerData,
-            [name]: target.value,
+            [target.name]: target.value,
         })
         event.preventDefault();
     }
     return (
         <div>
+            <NavigationBar />
             <form onSubmit={handleSubmit}>
                 <label htmlFor="first_name">First name: </label>
                 <input type="text" id="first_name" name="first_name" onChange={handleChange}/><br/>
