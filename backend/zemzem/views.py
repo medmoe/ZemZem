@@ -17,8 +17,6 @@ class CustomerSignUp(APIView):
 
     def post(self, request):
         data = request.data
-        print("**************************")
-        print(data)
         customer = Customer.objects.filter(username=data['username'], email=data['email'])
         if customer:
             return Response(data={'Message': 'username already exist!'}, status=status.HTTP_409_CONFLICT)
