@@ -1,10 +1,13 @@
 import React from "react";
-import {Link} from 'react-router-dom'
+import {Link} from 'react-router-dom';
+import logo from './../../assets/ZemZem.png';
+import styles from './NavigationBar.module.css';
 export function NavigationBar () {
     return (
-        <div>
+        <div className={styles.navbar}>
+            <img className={styles.logo} src={logo} alt="somename"/>
             <nav>
-                <ul>
+                <ul className={styles.navbar_links}>
                     <li>
                         <Link to="/">Home</Link>
                     </li>
