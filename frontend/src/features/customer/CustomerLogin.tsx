@@ -1,27 +1,37 @@
 import React, {FormEvent, useState} from 'react';
 import axios from "axios";
-import {NavigationBar} from "../homepage/NavigationBar";
-import styles from './Customer.module.css';
+import {LoginForm} from "./LoginForm";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../app/hooks";
+import { updateToken, updateUsername} from "./customerSlice";
+import styles from "./Customer.module.css";
 
 type CustomerLoginData = {
     username: string;
     password: string;
 }
+
 export function CustomerLogin() {
     const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({password: "", username: ""})
+    const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const options = {
             headers: {
-                'content-type' : 'application/json'
+                'content-type': 'application/json'
             }
         }
         await axios.post("http://localhost:8000/login/", JSON.stringify(customerLoginData), options)
             .then((res) => {
-                console.log(res);
+                localStorage.setItem('token', res.data.Token);
+                dispatch(updateUsername(customerLoginData.username));
+                dispatch(updateToken());
+                navigate('/');
             })
             .catch((err) => {
-                console.log(err);
+                setErrorMessage(err.response.data.Message);
             })
     }
     const handleInputChange = (event: FormEvent) => {
@@ -32,16 +42,16 @@ export function CustomerLogin() {
             [target.name]: target.value,
         })
     }
-    return (
-        <div>
-            <NavigationBar />
-            <form onSubmit={handleSubmit} className={styles.customer_form}>
-                <label htmlFor="username">Username: </label>
-                <input type="text" id="username" name="username" onChange={handleInputChange}/><br/>
-                <label htmlFor="password">Password: </label>
-                <input type="password" id="password" name="password" onChange={handleInputChange}/><br />
-                <input type="submit" value="submit" id={styles['submit_btn']}/>
-            </form>
-        </div>
-    );
+    if (!errorMessage) {
+        return (
+            <LoginForm handleSubmit={handleSubmit} handleInputChange={handleInputChange}/>
+        );
+    } else {
+        return (
+            <>
+                <LoginForm handleSubmit={handleSubmit} handleInputChange={handleInputChange}/>
+                <h1 className={styles.error_message}>{errorMessage}</h1>
+            </>
+        )
+    }
 }

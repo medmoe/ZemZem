@@ -1,7 +1,8 @@
 import React, {FormEvent, useState} from 'react';
 import axios from "axios";
-import {NavigationBar} from "../homepage/NavigationBar";
 import styles from './Customer.module.css';
+import {Banner} from "./Banner";
+import {RegistrationForm} from "./RegistrationForm";
 
 interface CustomerData {
     first_name: string,
@@ -11,7 +12,8 @@ interface CustomerData {
     password: string,
     pass2?: string,
 }
-export function CustomerRegistration () {
+
+export function CustomerRegistration() {
     let initialState: CustomerData = {
         "first_name": "",
         "last_name": "",
@@ -21,14 +23,16 @@ export function CustomerRegistration () {
         "pass2": "",
     }
     const [customerData, setCustomerData] = useState(initialState);
+    const [customerCreated, setCustomerCreated] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         if (!customerData.first_name || !customerData.last_name || !customerData.email || !customerData.username || !customerData.password) {
-            console.log("Please fill all the fields");
+            setErrorMessage("Please fill all the fields!");
             return;
         }
         if (customerData.password !== customerData.pass2) {
-            console.log("Password did not match");
+            setErrorMessage("password didn't match");
             return;
         }
         let options = {
@@ -38,9 +42,11 @@ export function CustomerRegistration () {
         }
         delete customerData.pass2;
         await axios.post("http://localhost:8000/signup/", JSON.stringify(customerData), options).then((res) => {
-            console.log(res);
+            setCustomerCreated(true);
         }).catch((err) => {
-            console.log(err);
+            if (err.response.status === 409) {
+                setErrorMessage(err.response.data.Message)
+            }
         })
     }
     const handleChange = (event: FormEvent) => {
@@ -51,24 +57,20 @@ export function CustomerRegistration () {
         })
         event.preventDefault();
     }
-    return (
-        <div>
-            <NavigationBar />
-            <form onSubmit={handleSubmit} className={styles.customer_form}>
-                <label htmlFor="first_name">First name: </label>
-                <input type="text" id="first_name" name="first_name" onChange={handleChange}/>
-                <label htmlFor="last_name">Last name: </label>
-                <input type="text" id="last_name" name="last_name" onChange={handleChange}/>
-                <label htmlFor="email">Email: </label>
-                <input type="email" id="email" name="email" onChange={handleChange}/>
-                <label htmlFor="username">Username: </label>
-                <input type="text" id="username" name="username" onChange={handleChange}/>
-                <label htmlFor="pass1">Password:</label>
-                <input type="password" id="pass1" name="password" onChange={handleChange}/>
-                <label htmlFor="pass2">Renter password</label>
-                <input type="password" id="pass2" name="pass2" onChange={handleChange}/>
-                <input type="submit" value="submit" id={styles['submit_btn']}/>
-            </form>
-        </div>
-    );
+    if (!customerCreated) {
+        if (!errorMessage) {
+            return (
+                <RegistrationForm handleSubmit={handleSubmit} handleChange={handleChange}/>
+            );
+        } else {
+            return (
+                <>
+                    <RegistrationForm handleSubmit={handleSubmit} handleChange={handleChange}/>
+                    <h1 className={styles.error_message}>{errorMessage}</h1>
+                </>
+            )
+        }
+    } else {
+        return <Banner message="Please check your mailbox to activate your account!"/>;
+    }
 }
