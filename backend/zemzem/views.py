@@ -47,13 +47,16 @@ class CustomerSignUp(APIView):
 class CustomerLogin(APIView):
     def post(self, request):
         data = request.data
-        customer = Customer.objects.get(username=data['username'])
-        hash_func, salt, hash = customer.password.split("$")
-        digest = hashlib.pbkdf2_hmac(hash_func, data['password'].encode(), salt.encode(), 10000)
-        if digest.hex() == hash:
-            token = jwt.encode(payload={'username': customer.username,
-                                        'email': customer.email,
-                                        'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(hours=6)},
-                               key=str(os.getenv('TOKEN_SECRET_KEY')))
-            return Response(data={'Message': 'logged in', 'Token': token}, status=status.HTTP_200_OK)
-        return Response(data={'Message': 'Credentials are incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            customer = Customer.objects.get(username=data['username'])
+            hash_func, salt, hash = customer.password.split("$")
+            digest = hashlib.pbkdf2_hmac(hash_func, data['password'].encode(), salt.encode(), 10000)
+            if digest.hex() == hash:
+                token = jwt.encode(payload={'username': customer.username,
+                                            'email': customer.email,
+                                            'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(hours=6)},
+                                   key=str(os.getenv('TOKEN_SECRET_KEY')))
+                return Response(data={'Message': 'logged in', 'Token': token}, status=status.HTTP_200_OK)
+            return Response(data={'Message': 'Credentials are incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Customer.DoesNotExist:
+            return Response(data={'Message': 'Credentials are incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
