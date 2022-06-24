@@ -30,3 +30,16 @@
 #submit_btn:hover{
     background: #158d06;
 }
+
+.banner {
+    margin: auto;
+    width: 50%;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #edf0f1;
+}
+.error_message{
+    color: red;
+    font-size: 12px;
+    text-align: center;
+}
