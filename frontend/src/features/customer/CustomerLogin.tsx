@@ -21,11 +21,12 @@ export function CustomerLogin() {
         const options = {
             headers: {
                 'content-type': 'application/json'
-            }
+            },
+            withCredentials: true,
         }
         await axios.post("http://localhost:8000/login/", JSON.stringify(customerLoginData), options)
             .then((res) => {
-                localStorage.setItem('token', res.data.Token);
+                console.log(res)
                 dispatch(updateUsername(customerLoginData.username));
                 dispatch(updateToken());
                 navigate('/');

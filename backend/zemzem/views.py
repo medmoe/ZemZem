@@ -13,7 +13,7 @@ from .models import Customer
 from .serializers import CustomerSignUpSerializer
 
 
-class CustomerSignUp(APIView):
+class CustomerSignUpView(APIView):
 
     def post(self, request):
         data = request.data
@@ -38,15 +38,17 @@ class CustomerSignUp(APIView):
                           html_message=html_message)
 
                 serializer.save()
-                response_data = {field_name: value for field_name, value in serializer.data.items() if field_name != 'password'}
+                response_data = {field_name: value for field_name, value in serializer.data.items() if
+                                 field_name != 'password'}
 
                 return Response(response_data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomerLogin(APIView):
+class CustomerLoginView(APIView):
     def post(self, request):
         data = request.data
+        response = Response()
         try:
             customer = Customer.objects.get(username=data['username'])
             hash_func, salt, hash = customer.password.split("$")
@@ -54,9 +56,23 @@ class CustomerLogin(APIView):
             if digest.hex() == hash:
                 token = jwt.encode(payload={'username': customer.username,
                                             'email': customer.email,
-                                            'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(hours=6)},
+                                            'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(
+                                                hours=6)},
                                    key=str(os.getenv('TOKEN_SECRET_KEY')))
-                return Response(data={'Message': 'logged in', 'Token': token}, status=status.HTTP_200_OK)
+                response.set_cookie('token', token, expires=datetime.timedelta(minutes=5), secure=False, httponly=True)
+                response.data = {'Message': 'logged in', 'data': data}
+                response.status_code = status.HTTP_200_OK
+                return response
             return Response(data={'Message': 'Credentials are incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
         except Customer.DoesNotExist:
             return Response(data={'Message': 'Credentials are incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class HomePageView(APIView):
+    def get(self, request):
+        _, token = request.headers.get('Cookie').split("=")
+        try:
+            data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
+            return Response(data={'username': data.get('username')}, status=status.HTTP_200_OK)
+        except jwt.exceptions.InvalidSignatureError:
+            return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)

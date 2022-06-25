@@ -4,6 +4,7 @@ import './App.css';
 import {CustomerLogin} from "./features/customer/CustomerLogin";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {NavigationBar} from "./features/homepage/NavigationBar";
+import {HomePage} from "./features/homepage/HomePage";
 
 function App() {
     return (
@@ -11,7 +12,7 @@ function App() {
             <header>
                 <div className="App">
                     <Routes>
-                        <Route path="/" element={<NavigationBar/>}/>
+                        <Route path="/" element={<HomePage/>}/>
                         <Route path="/signup" element={<CustomerRegistration/>}/>
                         <Route path="/login" element={<CustomerLogin/>}/>
                     </Routes>
