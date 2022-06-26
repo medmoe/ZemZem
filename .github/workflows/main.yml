@@ -36,7 +36,7 @@ jobs:
       - name: Run tests
         run: |
           cd backend
-          python manage.py test zemzem.tests
+          python manage.py test zemzem.customer.tests
 #      - name: Lint with flake8
 #        run: |
 #          pip install flake8

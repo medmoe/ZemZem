@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('zemzem.urls')),
+    path('', include('zemzem.customer.urls')),
 ]
