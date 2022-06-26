@@ -1,27 +1,33 @@
 import React, {useEffect} from 'react'
 import {NavigationBar} from "./NavigationBar";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {updateUsername, selectUsername} from "../customer/customerSlice";
+import {selectIsAuthenticated, selectUsername, updateIsAuthenticated, updateUsername} from "../customer/customerSlice";
 import axios from "axios";
 
 export function HomePage() {
+
     const dispatch = useAppDispatch();
+    const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const username = useAppSelector(selectUsername);
-    useEffect(()=>{
-        const call = async () => {
+    useEffect(() => {
+        const authenticate = async () => {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
                 .then((res) => {
+                    dispatch(updateIsAuthenticated(true));
                     dispatch(updateUsername(res.data.username));
                 })
                 .catch((err) => {
-                    console.log(err)
+                    console.log(err.response.data.Message);
                 })
         }
-        call();
-    },[])
-    return(
-        <div>
-            <NavigationBar username={username} />
-        </div>
-)
+        authenticate();
+    })
+    return (
+        <>
+            <div>
+                <NavigationBar username={username} isAuthenticated={isAuthenticated}/>
+            </div>
+        </>
+
+    )
 }

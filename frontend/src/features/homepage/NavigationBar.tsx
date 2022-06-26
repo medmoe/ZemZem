@@ -4,11 +4,12 @@ import logo from './../../assets/ZemZem.png';
 import styles from './NavigationBar.module.css';
 
 type IProps = {
-    username: string
+    username: string,
+    isAuthenticated: boolean,
 }
 
-export function NavigationBar (props:IProps) {
-    if(!props.username) {
+export function NavigationBar ({username, isAuthenticated}:IProps) {
+    if(!isAuthenticated) {
         return (
             <div className={styles.navbar}>
                 <img className={styles.logo} src={logo} alt="logo"/>
@@ -33,9 +34,9 @@ export function NavigationBar (props:IProps) {
                 <img className={styles.logo} src={logo} alt="logo"/>
                 <nav>
                     <ul className={styles.navbar_links}>
-                        <li><Link to="/">Home</Link></li>
-                        <li>Welcome, {props.username} !</li>
-                        <li>Logout</li>
+                        <li><Link to="/" onClick={() => window.location.reload()}>Home</Link></li>
+                        <li>Welcome, {username} !</li>
+                        <li><Link to="/logout">Logout</Link></li>
                     </ul>
                 </nav>
             </div>

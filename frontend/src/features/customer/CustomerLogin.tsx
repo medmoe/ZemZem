@@ -1,9 +1,9 @@
-import React, {FormEvent, useState} from 'react';
+import React, {FormEvent, useEffect, useState} from 'react';
 import axios from "axios";
 import {LoginForm} from "./LoginForm";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../app/hooks";
-import { updateToken, updateUsername} from "./customerSlice";
+import {useAppDispatch} from "../../app/hooks";
+import {updateIsAuthenticated, updateUsername} from "./customerSlice";
 import styles from "./Customer.module.css";
 
 type CustomerLoginData = {
@@ -16,6 +16,20 @@ export function CustomerLogin() {
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    useEffect(() => {
+        const call = async () => {
+            await axios.get('http://localhost:8000/home/', {withCredentials: true})
+                .then((res) => {
+                    dispatch(updateIsAuthenticated(true));
+                    dispatch(updateUsername(res.data.username));
+                    navigate('/');
+                })
+                .catch((err) => {
+                    console.log(err.response.data.Message);
+                })
+        }
+        call();
+    })
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const options = {
@@ -26,9 +40,8 @@ export function CustomerLogin() {
         }
         await axios.post("http://localhost:8000/login/", JSON.stringify(customerLoginData), options)
             .then((res) => {
-                console.log(res)
                 dispatch(updateUsername(customerLoginData.username));
-                dispatch(updateToken());
+                dispatch(updateIsAuthenticated(true));
                 navigate('/');
             })
             .catch((err) => {

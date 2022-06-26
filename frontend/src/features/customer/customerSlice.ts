@@ -2,29 +2,29 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../../app/store";
 
 export interface CustomerState {
-    token: string | null;
     username: string;
+    isAuthenticated: boolean;
 }
 const initialState: CustomerState = {
-    token: "",
     username: "",
+    isAuthenticated: false,
 }
 
 export const customerSlice = createSlice({
     name: 'customer',
     initialState,
     reducers: {
-        updateToken: (state) => {
-            state.token = localStorage.getItem('token');
-        },
         updateUsername: (state, action:PayloadAction<string>) => {
             state.username = action.payload;
+        },
+        updateIsAuthenticated: (state, action:PayloadAction<boolean>) => {
+            state.isAuthenticated = action.payload;
         }
     }
 })
 
-export const selectToken = (state: RootState) => state.customer.token;
 export const selectUsername = (state: RootState) => state.customer.username;
+export const selectIsAuthenticated = (state: RootState) => state.customer.isAuthenticated;
 
-export const { updateToken, updateUsername } = customerSlice.actions;
+export const { updateUsername, updateIsAuthenticated } = customerSlice.actions;
 export default customerSlice.reducer;

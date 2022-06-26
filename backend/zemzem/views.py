@@ -3,6 +3,7 @@ import hashlib
 import jwt
 import os
 import pytz
+from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from django.conf import settings
 from django.core.mail import send_mail
 from rest_framework import status
@@ -56,10 +57,9 @@ class CustomerLoginView(APIView):
             if digest.hex() == hash:
                 token = jwt.encode(payload={'username': customer.username,
                                             'email': customer.email,
-                                            'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(
-                                                hours=6)},
+                                            'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(minutes=30)},
                                    key=str(os.getenv('TOKEN_SECRET_KEY')))
-                response.set_cookie('token', token, expires=datetime.timedelta(minutes=5), secure=False, httponly=True)
+                response.set_cookie('token', token, httponly=True)
                 response.data = {'Message': 'logged in', 'data': data}
                 response.status_code = status.HTTP_200_OK
                 return response
@@ -68,11 +68,32 @@ class CustomerLoginView(APIView):
             return Response(data={'Message': 'Credentials are incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+class CustomerLogoutView(APIView):
+    def get(self, request):
+        data = request.data
+        response = Response()
+        key = str(os.getenv('TOKEN_SECRET_KEY'))
+        payload = {'username': data.get('username', ''),
+                   'email': data.get('email', ''),
+                   'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) - datetime.timedelta(minutes=5)}
+        token = jwt.encode(payload=payload, key=key)
+        response.set_cookie('token', token, httponly=True)
+        response.data = {'Message': 'logged out successfully!'}
+        response.status_code = status.HTTP_200_OK
+        return response
+
+
 class HomePageView(APIView):
     def get(self, request):
-        _, token = request.headers.get('Cookie').split("=")
-        try:
-            data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
-            return Response(data={'username': data.get('username')}, status=status.HTTP_200_OK)
-        except jwt.exceptions.InvalidSignatureError:
+        cookie = request.headers.get('Cookie')
+        if cookie:
+            _, token = request.headers.get('Cookie').split("=")
+            try:
+                data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
+                seconds = data.get('exp')
+                print(str(datetime.timedelta(seconds=seconds)))
+                return Response(data={'username': data.get('username')}, status=status.HTTP_200_OK)
+            except (InvalidSignatureError, ExpiredSignatureError):
+                return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
             return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
