@@ -10,7 +10,7 @@ type IProps = {
 export function RegistrationForm(props: IProps) {
     return (
         <div>
-            <NavigationBar username={""} />
+            <NavigationBar username={""} isAuthenticated={false}/>
             <form onSubmit={props.handleSubmit} className={styles.customer_form}>
                 <label htmlFor="first_name">First name: </label>
                 <input type="text" id="first_name" name="first_name" onChange={props.handleChange}/>

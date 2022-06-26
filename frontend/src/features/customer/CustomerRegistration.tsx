@@ -1,8 +1,11 @@
-import React, {FormEvent, useState} from 'react';
+import React, {FormEvent, useEffect, useState} from 'react';
 import axios from "axios";
 import styles from './Customer.module.css';
 import {Banner} from "./Banner";
 import {RegistrationForm} from "./RegistrationForm";
+import {updateIsAuthenticated, updateUsername} from "./customerSlice";
+import {useAppDispatch} from "../../app/hooks";
+import {useNavigate} from "react-router-dom";
 
 interface CustomerData {
     first_name: string,
@@ -25,6 +28,24 @@ export function CustomerRegistration() {
     const [customerData, setCustomerData] = useState(initialState);
     const [customerCreated, setCustomerCreated] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        const call = async () => {
+            await axios.get('http://localhost:8000/home/', {withCredentials: true})
+                .then((res) => {
+                    dispatch(updateIsAuthenticated(true));
+                    dispatch(updateUsername(res.data.username));
+                    navigate('/');
+                })
+                .catch((err) => {
+                    console.log(err.response.data.Message);
+                })
+        }
+        call();
+    })
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         if (!customerData.first_name || !customerData.last_name || !customerData.email || !customerData.username || !customerData.password) {
