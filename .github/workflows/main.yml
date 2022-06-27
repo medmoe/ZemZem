@@ -37,8 +37,14 @@ jobs:
         run: |
           cd backend
           python manage.py test zemzem.customer.tests
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          yarn install
       - name: Run frontend tests
-        run: yarn test --maxWorkers=1
+        run: |
+          cd frontend
+          yarn test --maxWorkers=1
 
 #      - name: Lint with flake8
 #        run: |
