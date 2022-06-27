@@ -23,11 +23,11 @@ export function HomePage() {
         authenticate();
     })
     return (
-        <>
+        <div>
             <div>
                 <NavigationBar username={username} isAuthenticated={isAuthenticated}/>
             </div>
-        </>
+        </div>
 
     )
 }
