@@ -1,10 +1,11 @@
 import React, {FormEvent, useEffect, useState} from 'react';
 import axios from "axios";
-import {LoginForm} from "./LoginForm";
+import { LoginForm } from "./LoginForm";
 import { useNavigate } from "react-router-dom";
-import {useAppDispatch} from "../../app/hooks";
-import {updateIsAuthenticated, updateUsername} from "./customerSlice";
+import { useAppDispatch } from "../../app/hooks";
+import { updateIsAuthenticated, updateUsername } from "./customerSlice";
 import styles from "./Customer.module.css";
+import {Action} from "@reduxjs/toolkit";
 
 type CustomerLoginData = {
     username: string;
@@ -25,7 +26,7 @@ export function CustomerLogin() {
                     navigate('/');
                 })
                 .catch((err) => {
-                    console.log(err.response.data.Message);
+                    console.log("Unauthorized");
                 })
         }
         call();
