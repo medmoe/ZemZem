@@ -16,8 +16,8 @@ describe("App", ()=>{
         )
 
 
-        expect(getByText(/Home/)).toBeInTheDocument();
-        expect(getByText(/signup/)).toBeInTheDocument();
-        expect(getByText(/login/)).toBeInTheDocument();
+        expect(getByText(/Home/ )).toBeInTheDocument();
+        expect(getByText(/signup/ )).toBeInTheDocument();
+        expect(getByText(/login/ )).toBeInTheDocument();
     })
 })
