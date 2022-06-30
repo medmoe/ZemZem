@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../app/hooks";
 import { updateIsAuthenticated, updateUsername } from "./customerSlice";
 import styles from "./Customer.module.css";
-import {Action} from "@reduxjs/toolkit";
 
 type CustomerLoginData = {
     username: string;
@@ -26,7 +25,8 @@ export function CustomerLogin() {
                     navigate('/');
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.Message);
+                    const { username, password, message} = err.response.data
+                    !username && !password ? console.log("Do Nothing!") : setErrorMessage(message);
                 })
         }
         call();

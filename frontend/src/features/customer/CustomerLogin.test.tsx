@@ -12,10 +12,12 @@ describe("Customer login", () => {
     beforeAll(() => {
         server.listen();
     });
-    let button = null;
-    let username = null;
-    let password = null;
+    let button:any = null;
+    let username:any = null;
+    let password:any = null;
     beforeEach(() => {
+        server.resetHandlers();
+        cleanup();
         jest.spyOn(router, 'useNavigate').mockImplementation(() => navigate)
         const {container}  = render(<Provider store={store}><CustomerLogin /></Provider> , options)
         button = screen.getByRole('button', {name:/submit/i})
@@ -23,17 +25,10 @@ describe("Customer login", () => {
         password = container.querySelector("#password");
 
     })
-    afterEach(() => {
-        server.resetHandlers();
-        cleanup();
-    });
     afterAll(() => server.close());
     const user = userEvent.setup();
     const navigate = jest.fn();
-    // jest.mock('react-router-dom', () => ({
-    //     ...jest.requireActual('react-router-dom') as any,
-    //         useNavigate: () => mockUseNavigate,
-    // }));
+
     it("should log the user in", async () => {
         await user.type(username, 'username');
         await user.type(password, 'password');
@@ -43,7 +38,6 @@ describe("Customer login", () => {
         expect(navigate).toHaveBeenCalledWith("/");
         expect(navigate).toHaveBeenCalledTimes(2);
 
-        // const header =  await screen.findByRole('heading', {name:/[a-z]*/i})
     })
     it ("should display an error message when authentication fails", async () => {
         await user.type(username, 'wrong-username');
