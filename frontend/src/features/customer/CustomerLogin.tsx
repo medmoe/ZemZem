@@ -26,11 +26,11 @@ export function CustomerLogin() {
                     navigate('/');
                 })
                 .catch((err) => {
-                    console.log("Unauthorized");
+                    setErrorMessage(err.response.data.Message);
                 })
         }
         call();
-    })
+    },[errorMessage])
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const options = {
@@ -65,7 +65,7 @@ export function CustomerLogin() {
         return (
             <>
                 <LoginForm handleSubmit={handleSubmit} handleInputChange={handleInputChange}/>
-                <h1 className={styles.error_message}>{errorMessage}</h1>
+                <h1 className={styles.error_message} id="error-message">{errorMessage}</h1>
             </>
         )
     }
