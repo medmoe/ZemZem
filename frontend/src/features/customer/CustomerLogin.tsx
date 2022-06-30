@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../app/hooks";
 import { updateIsAuthenticated, updateUsername } from "./customerSlice";
 import styles from "./Customer.module.css";
-import {Action} from "@reduxjs/toolkit";
 
 type CustomerLoginData = {
     username: string;
@@ -26,11 +25,12 @@ export function CustomerLogin() {
                     navigate('/');
                 })
                 .catch((err) => {
-                    console.log("Unauthorized");
+                    const { username, password, message} = err.response.data
+                    !username && !password ? console.log("Do Nothing!") : setErrorMessage(message);
                 })
         }
         call();
-    })
+    },[errorMessage])
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const options = {
@@ -65,7 +65,7 @@ export function CustomerLogin() {
         return (
             <>
                 <LoginForm handleSubmit={handleSubmit} handleInputChange={handleInputChange}/>
-                <h1 className={styles.error_message}>{errorMessage}</h1>
+                <h1 className={styles.error_message} id="error-message">{errorMessage}</h1>
             </>
         )
     }

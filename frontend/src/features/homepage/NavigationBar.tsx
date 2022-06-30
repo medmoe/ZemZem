@@ -36,7 +36,7 @@ export function NavigationBar ({username, isAuthenticated}:IProps) {
                     <ul className={styles.navbar_links}>
                         <li><Link to="/" onClick={() => window.location.reload()}>Home</Link></li>
                         <li>Welcome, {username} !</li>
-                        <li><Link to="/logout">Logout</Link></li>
+                        <li id="logout"><Link to="/logout">Logout</Link></li>
                     </ul>
                 </nav>
             </div>

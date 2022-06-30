@@ -45,7 +45,7 @@ export function CustomerRegistration() {
                 })
         }
         call();
-    })
+    },[])
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         if (!customerData.first_name || !customerData.last_name || !customerData.email || !customerData.username || !customerData.password) {
@@ -53,7 +53,7 @@ export function CustomerRegistration() {
             return;
         }
         if (customerData.password !== customerData.pass2) {
-            setErrorMessage("password didn't match");
+            setErrorMessage("passwords didn't match");
             return;
         }
         let options = {
@@ -65,9 +65,7 @@ export function CustomerRegistration() {
         await axios.post("http://localhost:8000/signup/", JSON.stringify(customerData), options).then((res) => {
             setCustomerCreated(true);
         }).catch((err) => {
-            if (err.response.status === 409) {
-                setErrorMessage(err.response.data.Message)
-            }
+            setErrorMessage(err.response.data.Message)
         })
     }
     const handleChange = (event: FormEvent) => {
