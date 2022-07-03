@@ -1,13 +1,8 @@
-from .models import Provider, Administrator
 from rest_framework import serializers
+from .models import Customer
 
-class ProviderSerializer(serializers.ModelSerializer):
+
+class CustomerSignUpSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Provider
-        fields = ['id', 'first_name', 'last_name', 'username', 'email', 'password']
-
-
-class AdministratorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Administrator
+        model = Customer
         fields = ['id', 'first_name', 'last_name', 'username', 'email', 'password']
