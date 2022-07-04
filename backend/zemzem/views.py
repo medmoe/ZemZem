@@ -1,15 +1,17 @@
 import datetime
 import hashlib
+import json
 import jwt
 import os
 import pytz
 from django.conf import settings
 from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist
 from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from zemzem.helpers import create_hash, create_token
+from zemzem.helpers import create_hash
 from .models import Customer, Provider
 from .serializers import CustomerSignUpSerializer
 
@@ -18,7 +20,11 @@ class HomePageView(APIView):
     def get(self, request):
         cookie = request.headers.get('Cookie')
         if cookie:
-            _, token = request.headers.get('Cookie').split("=")
+            token = None
+            for string in cookie.split(";"):
+                name, value = string.split("=")
+                if name == 'token':
+                    token = value
             try:
                 data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
                 seconds = data.get('exp')
@@ -58,14 +64,32 @@ class CustomerSignUpView(APIView):
         return Response({'Message': 'user with the same data already exist!'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomerLoginView(APIView):
+class LoginView(APIView):
     def post(self, request):
-        return create_token(request, Response(), Customer)
-
-
-class ProviderLoginView(APIView):
-    def post(self, request):
-        return create_token(request, Response(), Provider)
+        data = json.loads(request.data)
+        error_message = {
+            'Message': 'Credentials are incorrect!',
+            'username': data['username'],
+            'password': data['password'],
+        }
+        response = Response()
+        try:
+            user = Customer.objects.get(username=data['username']) if data['isCustomer'] else Provider.objects.get(username=data['username'])
+            hash_func, salt, hash = user.password.split("$")
+            digest = hashlib.pbkdf2_hmac(hash_func, data['password'].encode(), salt.encode(), 10000)
+            if digest.hex() == hash:
+                token = jwt.encode(payload={'username': user.username,
+                                            'email': user.email,
+                                            'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(
+                                                minutes=30)},
+                                   key=str(os.getenv('TOKEN_SECRET_KEY')))
+                response.set_cookie('token', token, httponly=True)
+                response.data = {'Message': 'logged in', 'data': data}
+                response.status_code = status.HTTP_200_OK
+                return response
+            return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist:
+            return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LogoutView(APIView):
