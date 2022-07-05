@@ -9,9 +9,17 @@ import {store} from '../../app/store'
 describe("Login form tests", () => {
     test("form renders successfully", () => {
         const handleSubmit = jest.fn();
-        const handleInputChange = jest.fn()
+        const handleInputChange = jest.fn();
+        const handleProviderChange = jest.fn();
+        const handleCustomerChange = jest.fn();
         const { container } = render(<Provider store={store}>
-            <LoginForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} />
+            <LoginForm
+                handleSubmit={handleSubmit}
+                handleInputChange={handleInputChange}
+                handleCustomerChange={handleCustomerChange}
+                handleProviderChange={handleProviderChange}
+                isCustomer={false}
+            />
         </Provider> , options)
         expect(screen.getByRole('button', {name:/submit/i})).toBeInTheDocument();
         expect(screen.getByText(/username:/i)).toBeInTheDocument();

@@ -1,18 +1,19 @@
 import React, {FormEvent, useEffect, useState} from 'react';
 import axios from "axios";
-import { LoginForm } from "./LoginForm";
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../app/hooks";
-import { updateIsAuthenticated, updateUsername } from "./customerSlice";
+import {LoginForm} from "./LoginForm";
+import {useNavigate} from "react-router-dom";
+import {useAppDispatch} from "../../app/hooks";
+import {updateIsAuthenticated, updateUsername} from "./customerSlice";
 import styles from "./Customer.module.css";
 
-type CustomerLoginData = {
+interface CustomerLoginData {
     username: string;
     password: string;
+    isCustomer: boolean;
 }
 
 export function CustomerLogin() {
-    const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({password: "", username: ""})
+    const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({password: "", username: "", isCustomer: true})
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -25,12 +26,12 @@ export function CustomerLogin() {
                     navigate('/');
                 })
                 .catch((err) => {
-                    const { username, password, message} = err.response.data
+                    const {username, password, message} = err.response.data;
                     !username && !password ? console.log("Do Nothing!") : setErrorMessage(message);
                 })
         }
         call();
-    },[errorMessage])
+    }, [errorMessage])
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const options = {
@@ -57,14 +58,36 @@ export function CustomerLogin() {
             [target.name]: target.value,
         })
     }
+    const handleProviderChange = (event: FormEvent) => {
+        setCustomerLoginData({
+            ...customerLoginData, isCustomer: false
+        })
+    }
+    const handleCustomerChange = (event: FormEvent) => {
+        setCustomerLoginData({
+            ...customerLoginData, isCustomer: true
+        })
+    }
     if (!errorMessage) {
         return (
-            <LoginForm handleSubmit={handleSubmit} handleInputChange={handleInputChange}/>
+            <LoginForm
+                handleSubmit={handleSubmit}
+                handleInputChange={handleInputChange}
+                isCustomer={customerLoginData.isCustomer}
+                handleCustomerChange={handleCustomerChange}
+                handleProviderChange={handleProviderChange}
+            />
         );
     } else {
         return (
             <>
-                <LoginForm handleSubmit={handleSubmit} handleInputChange={handleInputChange}/>
+                <LoginForm
+                    handleSubmit={handleSubmit}
+                    handleInputChange={handleInputChange}
+                    isCustomer={customerLoginData.isCustomer}
+                    handleCustomerChange={handleCustomerChange}
+                    handleProviderChange={handleProviderChange}
+                />
                 <h1 className={styles.error_message} id="error-message">{errorMessage}</h1>
             </>
         )
