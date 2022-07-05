@@ -1,6 +1,5 @@
 import datetime
 import hashlib
-import json
 import jwt
 import os
 import pytz
@@ -66,7 +65,7 @@ class CustomerSignUpView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        data = json.loads(request.data)
+        data = request.data
         error_message = {
             'Message': 'Credentials are incorrect!',
             'username': data['username'],

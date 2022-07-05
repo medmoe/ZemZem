@@ -37,8 +37,8 @@ class AccountTests(APITestCase):
             response = self.client.post('/login/', data=data, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        helper('{"username": "customer_username", "password": "customer-pass", "isCustomer": true}')
-        helper('{"username": "provider_username", "password": "provider-pass", "isCustomer": false}')
+        helper({"username": "customer_username", "password": "customer-pass", "isCustomer": True})
+        helper({"username": "provider_username", "password": "provider-pass", "isCustomer": False})
 
     def test_users_can_logout(self):
         def helper(data):
@@ -50,5 +50,5 @@ class AccountTests(APITestCase):
             response = self.client.get('/home/')
             self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        helper('{"username": "customer_username", "password": "customer-pass", "isCustomer": true}')
-        helper('{"username": "provider_username", "password": "provider-pass", "isCustomer": false}')
+        helper({"username": "customer_username", "password": "customer-pass", "isCustomer": True})
+        helper({"username": "provider_username", "password": "provider-pass", "isCustomer": False})

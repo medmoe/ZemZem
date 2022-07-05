@@ -2,6 +2,7 @@
     max-width: 500px;
     margin: 2rem auto;
     padding: 2rem;
+    ;
 }
 .customer_form label{
     display: block;
@@ -16,6 +17,30 @@
     padding: .5rem;
     color: #edf0f1;
     border-radius: 5px;
+}
+fieldset{
+    border: none;
+}
+fieldset label{
+    float: left;
+}
+fieldset span{
+    margin-left: 10px;
+}
+.customer_form input[type="radio"]{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    padding: 3px;
+    border: 2px solid #edf0f1;
+    border-radius: 50%;
+    margin-right: 0;
+}
+.customer_form input[type="radio"]:checked{
+    background-color: #25ad16;
 }
 #submit_btn{
     border: 0;
