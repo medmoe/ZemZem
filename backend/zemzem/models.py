@@ -17,13 +17,26 @@ class Provider(models.Model):
     username = models.CharField(max_length=200, unique=True)
     email = models.EmailField(unique=True)
     password = models.TextField()
-    isLocked = models.BooleanField(default=True)
+    is_locked = models.BooleanField(default=True)
+    is_available = models.BooleanField(default=False)
     rank = models.CharField(max_length=200)
     created = models.DateField()
 
     def get_rank(self):
         return tuple(self.rank.split(':'))
 
-    def save(self, *args, **kwargs):
-        self.password = create_hash(self.password)
+    def save(self, is_update, *args, **kwargs):
+        if not is_update:
+            self.password = create_hash(self.password)
         super(Provider, self).save(*args, **kwargs)
+
+
+class Order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    provider = models.OneToOneField(Provider, on_delete=models.CASCADE, primary_key=True)
+    phone_number = models.CharField(max_length=100)
+    quantity = models.CharField(max_length=100)
+    is_potable = models.BooleanField(default=True)
+    special_instructions = models.TextField()
+    location = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)

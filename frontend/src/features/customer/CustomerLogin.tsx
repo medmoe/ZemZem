@@ -3,7 +3,7 @@ import axios from "axios";
 import {LoginForm} from "./LoginForm";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../app/hooks";
-import {updateIsAuthenticated, updateUsername} from "./customerSlice";
+import {updateIsAuthenticated, updateUsername, updateIsCustomer} from "./customerSlice";
 import styles from "./Customer.module.css";
 
 interface CustomerLoginData {
@@ -22,6 +22,7 @@ export function CustomerLogin() {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
                 .then((res) => {
                     dispatch(updateIsAuthenticated(true));
+                    dispatch(updateIsCustomer(customerLoginData.isCustomer))
                     dispatch(updateUsername(res.data.username));
                     navigate('/');
                 })
@@ -43,6 +44,7 @@ export function CustomerLogin() {
         await axios.post("http://localhost:8000/login/", JSON.stringify(customerLoginData), options)
             .then((res) => {
                 dispatch(updateUsername(customerLoginData.username));
+                dispatch(updateIsCustomer(customerLoginData.isCustomer));
                 dispatch(updateIsAuthenticated(true));
                 navigate('/');
             })

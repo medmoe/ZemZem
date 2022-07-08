@@ -1,6 +1,6 @@
 import React, {FormEvent} from 'react'
 import { NavigationBar } from "../homepage/NavigationBar";
-import styles from "./Customer.module.css";
+import '../../App.css'
 
 type LoginFormProps = {
     isCustomer: boolean;
@@ -14,7 +14,7 @@ export function LoginForm({isCustomer, handleCustomerChange, handleProviderChang
     return (
         <div>
             <NavigationBar username={""} isAuthenticated={false}/>
-            <form onSubmit={handleSubmit} className={styles.customer_form}>
+            <form onSubmit={handleSubmit} className="zem-forms">
                 <label htmlFor="username">Username: </label>
                 <input type="text" id="username" name="username" onChange={handleInputChange}/><br/>
                 <label htmlFor="password">Password: </label>
@@ -29,7 +29,7 @@ export function LoginForm({isCustomer, handleCustomerChange, handleProviderChang
                         <span>Customer</span>
                     </label>
                 </fieldset>
-                <input type="submit" value="submit" id={styles['submit_btn']}/>
+                <input type="submit" value="submit" id="submit_btn"/>
 
             </form>
         </div>

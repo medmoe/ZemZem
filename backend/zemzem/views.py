@@ -3,6 +3,7 @@ import hashlib
 import jwt
 import os
 import pytz
+from django.db.models import Case, Value, When
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
@@ -65,6 +66,7 @@ class CustomerSignUpView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
+        print(request)
         data = request.data
         error_message = {
             'Message': 'Credentials are incorrect!',
@@ -73,8 +75,17 @@ class LoginView(APIView):
         }
         response = Response()
         try:
-            user = Customer.objects.get(username=data['username']) if data['isCustomer'] else Provider.objects.get(username=data['username'])
+            if data['isCustomer']:
+                user = Customer.objects.get(username=data['username'])
+            else:
+                user = Provider.objects.get(username=data['username'])
+                user.update(is_available=Case(
+                    When(is_available=False, then=Value(True)),
+                    default=Value(True)
+                ))
             hash_func, salt, hash = user.password.split("$")
+            print(user)
+            print(hash_func, salt, hash)
             digest = hashlib.pbkdf2_hmac(hash_func, data['password'].encode(), salt.encode(), 10000)
             if digest.hex() == hash:
                 token = jwt.encode(payload={'username': user.username,
@@ -86,6 +97,7 @@ class LoginView(APIView):
                 response.data = {'Message': 'logged in', 'data': data}
                 response.status_code = status.HTTP_200_OK
                 return response
+            print("hash did not match")
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
         except ObjectDoesNotExist:
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
@@ -104,3 +116,14 @@ class LogoutView(APIView):
         response.data = {'Message': 'logged out successfully!'}
         response.status_code = status.HTTP_200_OK
         return response
+
+
+class OrderView(APIView):
+    def post(self, request):
+        data = request.data
+        available_providers = Provider.objects.filter(is_available=True)
+        print(available_providers)
+        if not available_providers:
+            return Response(data={'Message': "no available providers"}, status=status.HTTP_200_OK)
+        else:
+            return Response(data={'Message': "there are providers"}, status=status.HTTP_200_OK)
