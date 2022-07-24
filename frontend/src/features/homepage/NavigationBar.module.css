@@ -16,3 +16,38 @@
     display: inline-block;
     padding: 0 20px;
 }
+
+#notifications {
+    position: absolute;
+    width: 31px;
+    height: 31px;
+    top: 65px;
+    left: 86%;
+    background-color: transparent;
+    border-radius: 0 5px 5px 0;
+    filter: invert(100%);
+
+
+}
+#orders {
+    width: 100px;
+    padding: 6px;
+    background-color: transparent;
+    border: 1px solid #f34400;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#orders p{
+    background-color: transparent;
+}
+#orders_list{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    left: 87%;
+    top: 60px;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+}

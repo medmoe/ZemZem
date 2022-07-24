@@ -22,7 +22,7 @@ describe("Customer logout", () => {
     it("should log the customer out", async () => {
         render(
             <Provider store={store}>
-                <NavigationBar username={"username"} isAuthenticated={true} />
+                <NavigationBar username={"username"} isAuthenticated={true} orders={[]}/>
             </Provider> , options
         )
         const logout = screen.getByText("Logout");

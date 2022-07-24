@@ -20,20 +20,20 @@ class Provider(models.Model):
     is_locked = models.BooleanField(default=True)
     is_available = models.BooleanField(default=False)
     rank = models.CharField(max_length=200)
-    created = models.DateField()
+    created = models.DateField(auto_now_add=True)
 
     def get_rank(self):
         return tuple(self.rank.split(':'))
 
-    def save(self, is_update, *args, **kwargs):
-        if not is_update:
+    def save(self, *args, **kwargs):
+        if len(self.password) < 80:
             self.password = create_hash(self.password)
         super(Provider, self).save(*args, **kwargs)
 
 
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    provider = models.OneToOneField(Provider, on_delete=models.CASCADE, primary_key=True)
+    provider = models.OneToOneField(Provider, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=100)
     quantity = models.CharField(max_length=100)
     is_potable = models.BooleanField(default=True)

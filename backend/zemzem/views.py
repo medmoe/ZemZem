@@ -3,7 +3,7 @@ import hashlib
 import jwt
 import os
 import pytz
-from django.db.models import Case, Value, When
+import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,7 +11,7 @@ from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from zemzem.helpers import create_hash
+from .helpers import create_hash
 from .models import Customer, Provider
 from .serializers import CustomerSignUpSerializer
 
@@ -23,8 +23,8 @@ class HomePageView(APIView):
             token = None
             for string in cookie.split(";"):
                 name, value = string.split("=")
-                if name == 'token':
-                    token = value
+                if name.strip() == 'token':
+                    token = value.strip()
             try:
                 data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
                 seconds = data.get('exp')
@@ -66,7 +66,6 @@ class CustomerSignUpView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        print(request)
         data = request.data
         error_message = {
             'Message': 'Credentials are incorrect!',
@@ -79,13 +78,10 @@ class LoginView(APIView):
                 user = Customer.objects.get(username=data['username'])
             else:
                 user = Provider.objects.get(username=data['username'])
-                user.update(is_available=Case(
-                    When(is_available=False, then=Value(True)),
-                    default=Value(True)
-                ))
+                _, _ = Provider.objects.update_or_create(
+                    username=data['username'], defaults={'is_available': True}
+                )
             hash_func, salt, hash = user.password.split("$")
-            print(user)
-            print(hash_func, salt, hash)
             digest = hashlib.pbkdf2_hmac(hash_func, data['password'].encode(), salt.encode(), 10000)
             if digest.hex() == hash:
                 token = jwt.encode(payload={'username': user.username,
@@ -97,20 +93,27 @@ class LoginView(APIView):
                 response.data = {'Message': 'logged in', 'data': data}
                 response.status_code = status.HTTP_200_OK
                 return response
-            print("hash did not match")
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
         except ObjectDoesNotExist:
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LogoutView(APIView):
-    def get(self, request):
+    def post(self, request):
         data = request.data
+        if not data['isCustomer']:
+            provider, _ = Provider.objects.update_or_create(
+                username=data['username'], defaults={'is_available': False})
+            payload = {'username': provider.username,
+                       'email': provider.email,
+                       'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) - datetime.timedelta(minutes=5)}
+        else:
+            customer = Customer.objects.get(username=data['username'])
+            payload = {'username': customer.username,
+                       'email': customer.email,
+                       'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) - datetime.timedelta(minutes=5)}
         response = Response()
         key = str(os.getenv('TOKEN_SECRET_KEY'))
-        payload = {'username': data.get('username', ''),
-                   'email': data.get('email', ''),
-                   'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) - datetime.timedelta(minutes=5)}
         token = jwt.encode(payload=payload, key=key)
         response.set_cookie('token', token, httponly=True)
         response.data = {'Message': 'logged out successfully!'}
@@ -122,8 +125,9 @@ class OrderView(APIView):
     def post(self, request):
         data = request.data
         available_providers = Provider.objects.filter(is_available=True)
-        print(available_providers)
         if not available_providers:
             return Response(data={'Message': "no available providers"}, status=status.HTTP_200_OK)
         else:
+            # dispatch the order to all providers
+
             return Response(data={'Message': "there are providers"}, status=status.HTTP_200_OK)

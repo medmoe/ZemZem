@@ -11,7 +11,7 @@ type IProps = {
 export function RegistrationForm(props: IProps) {
     return (
         <div>
-            <NavigationBar username={""} isAuthenticated={false}/>
+            <NavigationBar username={""} isAuthenticated={false} orders={[]}/>
             <form onSubmit={props.handleSubmit} className="zem-forms">
                 <label htmlFor="first_name">First name: </label>
                 <input type="text" id="first_name" name="first_name" onChange={props.handleChange}/>

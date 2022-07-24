@@ -24,7 +24,7 @@ export const customerSlice = createSlice({
         },
         updateIsCustomer: (state, action:PayloadAction<boolean>) => {
             state.isCustomer = action.payload;
-        }
+        },
     }
 })
 

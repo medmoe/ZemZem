@@ -46,6 +46,7 @@ export function CustomerLogin() {
                 dispatch(updateUsername(customerLoginData.username));
                 dispatch(updateIsCustomer(customerLoginData.isCustomer));
                 dispatch(updateIsAuthenticated(true));
+
                 navigate('/');
             })
             .catch((err) => {

@@ -14,7 +14,7 @@ describe("navigation bar", () => {
 
         const {getByText} = render(
             <Provider store={store}>
-                <NavigationBar username={""} isAuthenticated={false} />
+                <NavigationBar username={""} isAuthenticated={false} orders={[]}/>
             </Provider>, options
         )
         expect(getByText(/login/)).toBeInTheDocument();
@@ -23,7 +23,7 @@ describe("navigation bar", () => {
     it("should show username and logout if authenticated" , () => {
         const { getByText } = render(
             <Provider store={store}>
-                <NavigationBar username={"username"} isAuthenticated={true} />
+                <NavigationBar username={"username"} isAuthenticated={true} orders={[]}/>
             </Provider>, options
         )
         expect(getByText(/Welcome, username !/)).toBeInTheDocument();
@@ -33,7 +33,7 @@ describe("navigation bar", () => {
         it("should be displayed", () => {
             const { getByRole } = render(
                 <Provider store={store}>
-                    <NavigationBar username={"username"} isAuthenticated={true} />
+                    <NavigationBar username={"username"} isAuthenticated={true} orders={[]}/>
                 </Provider> , options
             )
             const logo = getByRole('img');

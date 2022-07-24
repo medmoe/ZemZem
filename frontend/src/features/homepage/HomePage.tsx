@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import {NavigationBar} from "./NavigationBar";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
@@ -11,8 +11,24 @@ import {
 import {OrderForm} from "./OrderForm";
 import axios from "axios";
 
+let socket: WebSocket;
+
+export interface Order {
+    phoneNumber: string,
+    quantity: string,
+    isPotable: boolean,
+    latitude: number,
+    longitude: number,
+    hasLocation: boolean,
+    specialInstruction: string,
+    showOrder?: boolean,
+}
+interface Response {
+    order: Order,
+}
 export function HomePage() {
 
+    const [orders, setOrders] = useState<Order[]>([])
     const dispatch = useAppDispatch();
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const username = useAppSelector(selectUsername);
@@ -29,13 +45,25 @@ export function HomePage() {
                 })
         }
         authenticate();
-    })
+        if (!isCustomer) {
+            socket = new WebSocket("ws://localhost:8000/ws/notify-providers/")
+            socket.addEventListener('message', (event) => {
+                const response: Response = JSON.parse(event.data);
+                setOrders([...orders,{
+                    ...response.order,
+                    showOrder: true,
+                }])
+            })
+        }
+    },[])
     return (
         <div>
             <div>
-                <NavigationBar username={username} isAuthenticated={isAuthenticated}/>
+                <NavigationBar username={username} isAuthenticated={isAuthenticated} orders={orders}/>
             </div>
             {isAuthenticated && isCustomer? <OrderForm/> : <h1>Welcome {username}</h1>}
+
+
         </div>
 
     )

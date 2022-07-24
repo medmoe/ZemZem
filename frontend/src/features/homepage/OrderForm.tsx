@@ -1,4 +1,4 @@
-import React, {FormEvent, useState} from 'react'
+import React, {FormEvent, useEffect, useState} from 'react'
 import axios from "axios";
 import '../../App.css'
 
@@ -18,8 +18,13 @@ const initialState = {
     isPotable: true,
 }
 
+let socket:WebSocket;
+
 export function OrderForm() {
     const [orderFormData, setOrderFormData] = useState<OrderForm>(initialState)
+    useEffect(() => {
+        socket = new WebSocket("ws://localhost:8000/ws/notify-providers/")
+    },[])
     if (!navigator.geolocation) {
         setOrderFormData({
             ...orderFormData,
@@ -42,6 +47,7 @@ export function OrderForm() {
     }
     const submitOrderForm = async (event: FormEvent) => {
         event.preventDefault();
+        socket.send(JSON.stringify(orderFormData));
         const options = {
             headers: {
                 'content-type': 'application/json'

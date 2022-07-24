@@ -1,7 +1,7 @@
 import datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
-from zemzem.helpers import create_hash
+from .helpers import create_hash
 from .models import Customer, Provider
 
 
@@ -44,7 +44,7 @@ class AccountTests(APITestCase):
         def helper(data):
             response = self.client.post('/login/', data=data, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            response = self.client.get('/logout/')
+            response = self.client.post('/logout/', data=data, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('Message'), 'logged out successfully!')
             response = self.client.get('/home/')

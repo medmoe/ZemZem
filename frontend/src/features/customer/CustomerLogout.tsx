@@ -1,15 +1,25 @@
 import React, {useEffect} from 'react'
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
-import {useAppDispatch} from "../../app/hooks";
-import {updateIsAuthenticated} from "./customerSlice";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
+import {updateIsAuthenticated, selectIsCustomer, selectUsername} from "./customerSlice";
 
 export function CustomerLogout() {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    const options = {
+        headers: {
+            'content-type': 'application/json'
+        },
+        withCredentials: true,
+    }
+    const data = {
+        'username': useAppSelector(selectUsername),
+        'isCustomer': useAppSelector(selectIsCustomer),
+    }
     useEffect(() => {
         const call = async () => {
-            await axios.get('http://localhost:8000/logout/', {withCredentials: true})
+            await axios.post('http://localhost:8000/logout/', JSON.stringify(data), options)
                 .then((res) => {
                     dispatch(updateIsAuthenticated(false));
                     navigate('/');

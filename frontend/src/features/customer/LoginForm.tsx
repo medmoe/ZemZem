@@ -13,7 +13,7 @@ type LoginFormProps = {
 export function LoginForm({isCustomer, handleCustomerChange, handleProviderChange, handleSubmit, handleInputChange}: LoginFormProps) {
     return (
         <div>
-            <NavigationBar username={""} isAuthenticated={false}/>
+            <NavigationBar username={""} isAuthenticated={false} orders={[]}/>
             <form onSubmit={handleSubmit} className="zem-forms">
                 <label htmlFor="username">Username: </label>
                 <input type="text" id="username" name="username" onChange={handleInputChange}/><br/>
