@@ -37,6 +37,9 @@
     border-radius: 5px;
     cursor: pointer;
 }
+#orders:hover {
+    border: 1px solid #f36400;
+}
 #orders p{
     background-color: transparent;
 }

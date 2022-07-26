@@ -10,5 +10,5 @@ class CustomerSignUpSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
-        moder = Order
-        fields = ['phone_number', 'quantity', 'is_potable', 'special_instructions', 'location']
+        model = Order
+        fields = '__all__'

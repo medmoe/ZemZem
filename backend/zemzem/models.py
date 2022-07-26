@@ -1,5 +1,14 @@
+import datetime
+
 from django.db import models
 from .helpers import create_hash
+
+
+class OrderStatus(models.TextChoices):
+    READY = 'READY'
+    IN_PROGRESS = 'IN_PROGRESS'
+    SERVED = 'SERVED'
+    FAILED = 'FAILED'
 
 
 class Customer(models.Model):
@@ -33,10 +42,13 @@ class Provider(models.Model):
 
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    provider = models.OneToOneField(Provider, on_delete=models.CASCADE)
-    phone_number = models.CharField(max_length=100)
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, null=True)
+    phoneNumber = models.CharField(max_length=100)
     quantity = models.CharField(max_length=100)
-    is_potable = models.BooleanField(default=True)
-    special_instructions = models.TextField()
+    isPotable = models.BooleanField(default=True)
+    specialInstructions = models.TextField()
     location = models.TextField()
+    status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.READY)
+    reasonOfFailure = models.TextField(default="N/A")
+    deliveredAt = models.DateTimeField(null=True)
     created = models.DateTimeField(auto_now_add=True)

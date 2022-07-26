@@ -5,6 +5,7 @@ export interface CustomerState {
     username: string;
     isAuthenticated: boolean;
     isCustomer: boolean;
+    customerId?: number;
 }
 const initialState: CustomerState = {
     username: "",
@@ -25,12 +26,16 @@ export const customerSlice = createSlice({
         updateIsCustomer: (state, action:PayloadAction<boolean>) => {
             state.isCustomer = action.payload;
         },
+        updateCustomerId: (state, action:PayloadAction<number>) => {
+            state.customerId = action.payload;
+        }
     }
 })
 
 export const selectUsername = (state: RootState) => state.customer.username;
 export const selectIsAuthenticated = (state: RootState) => state.customer.isAuthenticated;
 export const selectIsCustomer = (state: RootState) => state.customer.isCustomer;
+export const selectCustomerId = (state: RootState) => state.customer.customerId;
 
-export const { updateUsername, updateIsAuthenticated, updateIsCustomer } = customerSlice.actions;
+export const { updateUsername, updateIsAuthenticated, updateIsCustomer, updateCustomerId } = customerSlice.actions;
 export default customerSlice.reducer;
