@@ -6,7 +6,7 @@ import {
     selectUsername,
     updateIsAuthenticated,
     updateUsername,
-    selectIsCustomer
+    selectIsCustomer, selectShowOrderForm
 } from "../customer/customerSlice";
 import {OrderForm} from "./OrderForm";
 import axios from "axios";
@@ -55,7 +55,7 @@ export function HomePage() {
                 }])
             })
         }
-    },[])
+    },[orders])
     return (
         <div>
             <div>

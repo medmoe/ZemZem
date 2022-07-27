@@ -5,6 +5,7 @@ import {useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../app/hooks";
 import {updateIsAuthenticated, updateUsername, updateIsCustomer, updateCustomerId} from "./customerSlice";
 import styles from "./Customer.module.css";
+import {updateHasLocation, updateLatitude, updateLongitude} from "../homepage/homeSlice";
 
 interface CustomerLoginData {
     username: string;
@@ -12,8 +13,28 @@ interface CustomerLoginData {
     isCustomer: boolean;
 }
 
+let location: [boolean, number, number] = [false, 0, 0];
+
+export function getLocation(arr: [boolean, number, number]){
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            arr[0] = true;
+            arr[1] = position.coords.latitude;
+            arr[2] = position.coords.longitude;
+        }, () => {
+            console.log("cannot get geolocation!");
+        });
+    }else{
+        console.log("browser does not support geolocation!");
+    }
+}
+
 export function CustomerLogin() {
-    const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({password: "", username: "", isCustomer: true})
+    const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({
+        password: "",
+        username: "",
+        isCustomer: true
+    })
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -33,6 +54,10 @@ export function CustomerLogin() {
                 })
         }
         call();
+        getLocation(location);
+        dispatch(updateHasLocation(location[0]))
+        dispatch(updateLongitude(location[1]))
+        dispatch(updateLatitude(location[2]))
     }, [errorMessage])
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -44,12 +69,14 @@ export function CustomerLogin() {
         }
         await axios.post("http://localhost:8000/login/", JSON.stringify(customerLoginData), options)
             .then((res) => {
-                console.log(res.data);
                 dispatch(updateUsername(res.data.username));
                 dispatch(updateIsCustomer(res.data.isCustomer));
                 dispatch(updateIsAuthenticated(true));
                 dispatch(updateCustomerId(res.data.id))
-
+                getLocation(location);
+                dispatch(updateHasLocation(location[0]))
+                dispatch(updateLongitude(location[1]))
+                dispatch(updateLatitude(location[2]))
                 navigate('/');
             })
             .catch((err) => {

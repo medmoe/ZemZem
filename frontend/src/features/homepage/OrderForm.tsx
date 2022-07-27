@@ -1,9 +1,11 @@
 import React, {FormEvent, useEffect, useState} from 'react'
 import axios from "axios";
 import '../../App.css'
-import {useAppSelector} from "../../app/hooks";
-import {selectCustomerId} from "../customer/customerSlice";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
+import {selectCustomerId, selectShowOrderForm, updateShowOrderForm} from "../customer/customerSlice";
 import {useNavigate} from "react-router-dom";
+import styles from './OrderForm.module.css';
+import {selectLatitude, selectLongitude} from "./homeSlice";
 
 interface OrderForm {
     phoneNumber: string,
@@ -12,7 +14,6 @@ interface OrderForm {
     specialInstructions?: string,
     latitude?: number,
     longitude?: number,
-    hasLocation?: boolean,
 }
 
 interface Order {
@@ -39,40 +40,24 @@ export function OrderForm() {
     const id = useAppSelector(selectCustomerId);
     const [orderFormData, setOrderFormData] = useState<OrderForm>(initialState)
     const navigate = useNavigate();
+    const latitude = useAppSelector(selectLatitude);
+    const longitude = useAppSelector(selectLongitude);
+    const showOrderForm = useAppSelector(selectShowOrderForm);
+    const dispatch = useAppDispatch();
     useEffect(() => {
         socket = new WebSocket("ws://localhost:8000/ws/notify-providers/")
-        if (!navigator.geolocation) {
-            setOrderFormData({
-                ...orderFormData,
-                hasLocation: false,
-            })
-        } else {
-            navigator.geolocation.getCurrentPosition((position) => {
-                setOrderFormData({
-                    ...orderFormData,
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    hasLocation: true,
-                })
-            }, () => {
-                setOrderFormData({
-                    ...orderFormData,
-                    hasLocation: false,
-                })
-            });
-        }
     }, [])
 
     const submitOrderForm = async (event: FormEvent) => {
         event.preventDefault();
-        socket.send(JSON.stringify(orderFormData));
+        socket.send(JSON.stringify({...orderFormData, latitude: latitude, longitude: longitude}));
         const options = {
             headers: {
                 'content-type': 'application/json'
             },
             withCredentials: true,
         }
-        let location: string = orderFormData.latitude && orderFormData.longitude ? `${orderFormData.latitude.toString()},${orderFormData.longitude.toString()}` : "N/A";
+        let location: string = latitude && longitude ? `${latitude.toString()},${longitude.toString()}` : "N/A";
         orderToSend = {
             customer: id,
             phoneNumber: orderFormData.phoneNumber,
@@ -84,7 +69,7 @@ export function OrderForm() {
         }
         await axios.post("http://localhost:8000/order/", JSON.stringify(orderToSend), options)
             .then((res) => {
-                navigate('/');
+                dispatch(updateShowOrderForm(false));
             })
             .catch((err) => {
                 console.log("failed");
@@ -107,22 +92,31 @@ export function OrderForm() {
 
     return (
         <div>
-            <form className="zem-forms">
-                <label htmlFor="phoneNumber">Phone number:</label>
-                <input type="text" id="phoneNumber" name="phoneNumber" onChange={handleFieldChange}/>
-                <label htmlFor="quantity">Quantity (L):</label>
-                <input type="number" id="quantity" name="quantity" onChange={handleFieldChange}/>
-                <fieldset>
-                    <label><input type="radio" onChange={changePotable}
-                                  checked={orderFormData.isPotable} name="isPotable"/><span>Potable</span></label>
-                    <label><input type="radio" onChange={changeNonPotable}
-                                  checked={!orderFormData.isPotable} name="isPotable"/><span>Non-Potable</span></label>
-                </fieldset>
-                <label htmlFor="specialInstruction">Special instructions:</label>
-                <textarea id="specialInstruction" name="specialInstructions" rows={10}
-                          onChange={handleFieldChange}/>
-                <input type="submit" value="submit" id="submit_btn" onClick={submitOrderForm}/>
-            </form>
+            {showOrderForm ?
+                <form className="zem-forms">
+                    <label htmlFor="phoneNumber">Phone number:</label>
+                    <input type="text" id="phoneNumber" name="phoneNumber" onChange={handleFieldChange}/>
+                    <label htmlFor="quantity">Quantity (L):</label>
+                    <input type="number" id="quantity" name="quantity" onChange={handleFieldChange}/>
+                    <fieldset>
+                        <label><input type="radio" onChange={changePotable}
+                                      checked={orderFormData.isPotable} name="isPotable"/><span>Potable</span></label>
+                        <label><input type="radio" onChange={changeNonPotable}
+                                      checked={!orderFormData.isPotable}
+                                      name="isPotable"/><span>Non-Potable</span></label>
+                    </fieldset>
+                    <label htmlFor="specialInstruction">Special instructions:</label>
+                    <textarea id="specialInstruction" name="specialInstructions" rows={10}
+                              onChange={handleFieldChange}/>
+                    <input type="submit" value="submit" id="submit_btn" onClick={submitOrderForm}/>
+                </form>
+                :
+                <div className={styles.loader_container}>
+                    <div className={styles.loader}></div>
+                    <p>Connecting you to a provider!!!</p>
+                </div>
+
+            }
         </div>
     )
 }

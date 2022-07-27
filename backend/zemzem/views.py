@@ -134,3 +134,6 @@ class OrderView(APIView):
         else:
             print(serializer.errors)
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self):
+        pass
