@@ -1,0 +1,26 @@
+.container {
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    background-color: #f36400;
+    width: 60%;
+    margin: auto;
+}
+.container *:not(hr) {
+    padding: 5px;
+    background-color: transparent;
+}
+
+.container hr {
+    width: 60%;
+    margin: auto;
+    color: #24252A;
+}
+.container span {
+    font-weight: bold;
+}
+
+.container:hover {
+    transform: scale(1.3);
+}

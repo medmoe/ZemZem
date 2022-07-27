@@ -1,0 +1,15 @@
+export interface OrderType {
+    phoneNumber: string,
+    quantity: number,
+    isPotable: boolean,
+    location: string,
+    hasLocation: boolean,
+    specialInstructions: string,
+    showOrder?: boolean,
+    created?: string,
+    customer?: number,
+    deliveredAt?: string,
+    id?: number,
+    provider?: number,
+    status?: string,
+}

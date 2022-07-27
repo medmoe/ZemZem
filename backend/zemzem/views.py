@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .helpers import create_hash
-from .models import Customer, Provider, OrderStatus
+from .models import Customer, Provider, OrderStatus, Order
 from .serializers import CustomerSignUpSerializer, OrderSerializer
 
 
@@ -27,11 +27,15 @@ class HomePageView(APIView):
                     token = value.strip()
             try:
                 data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
-                seconds = data.get('exp')
-                customer = Customer.objects.get(username=data.get('username'))
-                print(str(datetime.timedelta(seconds=seconds)))
-                return Response(data={'username': customer.username, 'id': customer.id}, status=status.HTTP_200_OK)
-            except (InvalidSignatureError, ExpiredSignatureError, ObjectDoesNotExist):
+                customer = Customer.objects.filter(username=data.get('username'))
+                provider = Provider.objects.filter(username=data.get('username'))
+                if customer:
+                    return Response(data={'username': customer[0].username, 'id': customer[0].id}, status=status.HTTP_200_OK)
+                if provider:
+                    return Response(data={'username': provider[0].username, 'id': provider[0].id}, status=status.HTTP_200_OK)
+
+                return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+            except (InvalidSignatureError, ExpiredSignatureError):
                 return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -91,7 +95,7 @@ class LoginView(APIView):
                                                 minutes=30)},
                                    key=str(os.getenv('TOKEN_SECRET_KEY')))
 
-                response.set_cookie('token', token, httponly=True)
+                response.set_cookie('token', token, httponly=True, samesite=None)
                 response.data = {'username': user.username, 'isCustomer': data['isCustomer'], 'id': user.id}
                 response.status_code = status.HTTP_200_OK
                 return response
@@ -126,7 +130,6 @@ class LogoutView(APIView):
 class OrderView(APIView):
     def post(self, request):
         data = request.data
-        print(data)
         serializer = OrderSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -135,5 +138,7 @@ class OrderView(APIView):
             print(serializer.errors)
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self):
-        pass
+    def get(self, request):
+        orders = Order.objects.filter(status=OrderStatus.READY)
+        serializer = OrderSerializer(orders, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

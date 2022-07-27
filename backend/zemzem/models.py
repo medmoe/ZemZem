@@ -1,5 +1,5 @@
-import datetime
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from .helpers import create_hash
 
@@ -44,7 +44,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, null=True)
     phoneNumber = models.CharField(max_length=100)
-    quantity = models.CharField(max_length=100)
+    quantity = models.IntegerField(validators=[MinValueValidator(100)])
     isPotable = models.BooleanField(default=True)
     specialInstructions = models.TextField()
     location = models.TextField()

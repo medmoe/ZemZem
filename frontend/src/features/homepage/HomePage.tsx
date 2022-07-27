@@ -8,31 +8,25 @@ import {
     updateUsername,
     selectIsCustomer, selectShowOrderForm
 } from "../customer/customerSlice";
-import {OrderForm} from "./OrderForm";
+import {OrderForm} from "../order/OrderForm";
 import axios from "axios";
+import {OrderType} from "../utils/types";
+import {OrderDetailCard} from "../order/OrderDetailCard";
+import {selectShowOrderDetailsCard} from "./homeSlice";
 
 let socket: WebSocket;
 
-export interface Order {
-    phoneNumber: string,
-    quantity: string,
-    isPotable: boolean,
-    latitude: number,
-    longitude: number,
-    hasLocation: boolean,
-    specialInstruction: string,
-    showOrder?: boolean,
-}
 interface Response {
-    order: Order,
+    order: OrderType,
 }
 export function HomePage() {
 
-    const [orders, setOrders] = useState<Order[]>([])
+    const [orders, setOrders] = useState<OrderType[]>([])
     const dispatch = useAppDispatch();
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const username = useAppSelector(selectUsername);
     const isCustomer = useAppSelector(selectIsCustomer);
+    const showOrderDetailsCard = useAppSelector(selectShowOrderDetailsCard);
     useEffect(() => {
         const authenticate = async () => {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
@@ -45,7 +39,9 @@ export function HomePage() {
                 })
         }
         authenticate();
-        if (!isCustomer) {
+    },[orders])
+    useEffect(() => {
+        if (isAuthenticated && !isCustomer){
             socket = new WebSocket("ws://localhost:8000/ws/notify-providers/")
             socket.addEventListener('message', (event) => {
                 const response: Response = JSON.parse(event.data);
@@ -54,14 +50,26 @@ export function HomePage() {
                     showOrder: true,
                 }])
             })
+            const receivedOrders = async () => {
+                await axios.get('http://localhost:8000/order/', {withCredentials: true})
+                    .then((res) => {
+                        setOrders([...orders, ...res.data])
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
+
+            }
+            receivedOrders();
         }
-    },[orders])
+    }, [isAuthenticated])
     return (
         <div>
             <div>
                 <NavigationBar username={username} isAuthenticated={isAuthenticated} orders={orders}/>
             </div>
-            {isAuthenticated && isCustomer? <OrderForm/> : <h1>Welcome {username}</h1>}
+            {isAuthenticated && isCustomer && <OrderForm/>}
+            {!isCustomer && showOrderDetailsCard && <OrderDetailCard />}
 
 
         </div>

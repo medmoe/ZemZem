@@ -59,6 +59,9 @@
 .dropDownContainer{
     position: absolute;
     background-color: #f36400;
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 .dropDownContainer p {
     display: block;

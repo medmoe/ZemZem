@@ -4,27 +4,26 @@ import logo from './../../assets/ZemZem.png';
 import styles from './NavigationBar.module.css';
 import notifications from './../../assets/notify.svg'
 import orders_ico from './../../assets/orders.svg';
-import {Order} from "./HomePage";
-import {useAppSelector} from "../../app/hooks";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {selectIsCustomer} from "../customer/customerSlice";
-import {selectLatitude, selectLongitude} from "./homeSlice";
-import {OrderComponent} from "./OrderComponent";
+import {selectLatitude, selectLongitude, selectShowOrderDetailsCard, updateShowOrderDetailsCard} from "./homeSlice";
+import {OrderComponent} from "../order/OrderComponent";
+import {OrderType} from "../utils/types";
 
 type IProps = {
     username: string,
     isAuthenticated: boolean,
-    orders: Order[],
+    orders: OrderType[],
 }
 
-function getDistance(lat1:number | undefined, lat2:number | undefined, lon1:number | undefined, lon2:number | undefined) {
-    if (!lat1 || !lat2 || !lon1 || !lon2){
+function getDistance(lat1: number | undefined, lat2: number | undefined, lon1: number | undefined, lon2: number | undefined) {
+    if (!lat1 || !lat2 || !lon1 || !lon2) {
         return 0;
     }
     lat1 = lat1 * Math.PI / 180;
     lat2 = lat2 * Math.PI / 180;
     lon1 = lon1 * Math.PI / 180;
     lon2 = lon2 * Math.PI / 180;
-
     // Haversine formula
     let dlon: number = lon2 - lon1;
     let dlat: number = lat2 - lat1;
@@ -38,9 +37,17 @@ export function NavigationBar({username, isAuthenticated, orders}: IProps) {
     const isCustomer = useAppSelector(selectIsCustomer);
     const latitude = useAppSelector(selectLatitude);
     const longitude = useAppSelector(selectLongitude);
+    const showOrderDetailsCard = useAppSelector(selectShowOrderDetailsCard);
     const [visibility, setVisibility] = useState<CSSProperties>({visibility: 'hidden'})
+    const dispatch = useAppDispatch();
     const updateVisibility = () => {
-        setVisibility(visibility.visibility === "hidden"? {visibility: "visible"} : {visibility: "hidden"});
+        setVisibility(visibility.visibility === "hidden" ? {visibility: "visible"} : {visibility: "hidden"});
+        if (showOrderDetailsCard){
+            dispatch(updateShowOrderDetailsCard(false))
+        }
+    }
+    const showOrderDetails = () => {
+        dispatch(updateShowOrderDetailsCard(true));
     }
     if (!isAuthenticated) {
         return (
@@ -81,7 +88,10 @@ export function NavigationBar({username, isAuthenticated, orders}: IProps) {
                                 </div>
                                 <div className={styles.dropDownContainer} style={visibility}>
                                     {orders.map((order, id) => {
-                                        return <OrderComponent key={id} distance={getDistance(latitude, order.latitude, longitude, order.longitude).toFixed(2)} />
+                                        const [lat, long] = order.location.split(',');
+                                        return <OrderComponent key={id}
+                                                               distance={getDistance(latitude, parseFloat(lat), longitude, parseFloat(long)).toFixed(2)}
+                                                               showOrderDetails={showOrderDetails}/>
                                     })}
                                 </div>
                             </li>

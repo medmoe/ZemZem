@@ -5,9 +5,10 @@ export interface HomeState {
     hasLocation: boolean,
     latitude?: number,
     longitude?: number,
+    showOrderDetailsCard: boolean,
 }
 
-const initialState: HomeState = {hasLocation: false}
+const initialState: HomeState = {hasLocation: false, showOrderDetailsCard: false}
 
 export const homeSlice = createSlice({
     name: 'home',
@@ -21,6 +22,9 @@ export const homeSlice = createSlice({
         },
         updateHasLocation: (state, action: PayloadAction<boolean>) => {
             state.hasLocation = action.payload;
+        },
+        updateShowOrderDetailsCard: (state, action: PayloadAction<boolean>) => {
+            state.showOrderDetailsCard = action.payload;
         }
     }
 })
@@ -28,7 +32,8 @@ export const homeSlice = createSlice({
 export const selectLatitude = (state: RootState) => state.home.latitude;
 export const selectLongitude = (state: RootState) => state.home.longitude;
 export const selectHasLocation = (state: RootState) => state.home.hasLocation;
+export const selectShowOrderDetailsCard = (state: RootState) => state.home.showOrderDetailsCard;
 
-export const {updateLatitude, updateLongitude, updateHasLocation} = homeSlice.actions;
+export const {updateLatitude, updateLongitude, updateHasLocation, updateShowOrderDetailsCard} = homeSlice.actions;
 
 export default homeSlice.reducer;
