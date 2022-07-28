@@ -1,18 +1,17 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../../app/store";
+import {CustomerType} from "../utils/types";
 
 export interface CustomerState {
-    username: string;
+    username?: string;
     isAuthenticated: boolean;
-    isCustomer: boolean;
-    customerId?: number;
+    isCustomer?: boolean;
+    customerInfo?: CustomerType;
     showOrderForm: boolean;
 }
 
 const initialState: CustomerState = {
-    username: "",
     isAuthenticated: false,
-    isCustomer: false,
     showOrderForm: true,
 }
 
@@ -29,8 +28,8 @@ export const customerSlice = createSlice({
         updateIsCustomer: (state, action: PayloadAction<boolean>) => {
             state.isCustomer = action.payload;
         },
-        updateCustomerId: (state, action: PayloadAction<number>) => {
-            state.customerId = action.payload;
+        updateCustomerInfo: (state, action: PayloadAction<CustomerType>) => {
+            state.customerInfo = action.payload;
         },
         updateShowOrderForm: (state, action: PayloadAction<boolean>) => {
             state.showOrderForm = action.payload;
@@ -41,14 +40,14 @@ export const customerSlice = createSlice({
 export const selectUsername = (state: RootState) => state.customer.username;
 export const selectIsAuthenticated = (state: RootState) => state.customer.isAuthenticated;
 export const selectIsCustomer = (state: RootState) => state.customer.isCustomer;
-export const selectCustomerId = (state: RootState) => state.customer.customerId;
+export const selectCustomerInfo = (state: RootState) => state.customer.customerInfo;
 export const selectShowOrderForm = (state: RootState) => state.customer.showOrderForm;
 
 export const {
     updateUsername,
     updateIsAuthenticated,
     updateIsCustomer,
-    updateCustomerId,
+    updateCustomerInfo,
     updateShowOrderForm,
 } = customerSlice.actions;
 export default customerSlice.reducer;

@@ -6,8 +6,22 @@
     background-color: #f36400;
     width: 60%;
     margin: auto;
+    transition-property: transform;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in-out;
 }
-.container *:not(hr) {
+.container button {
+    background-color: #25ad16;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px black;
+}
+.container button:hover {
+    cursor: pointer;
+    background-color: #158d06;
+}
+.container *:not(hr, button) {
     padding: 5px;
     background-color: transparent;
 }
@@ -24,3 +38,4 @@
 .container:hover {
     transform: scale(1.3);
 }
+

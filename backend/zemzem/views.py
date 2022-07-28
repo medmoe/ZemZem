@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .helpers import create_hash
 from .models import Customer, Provider, OrderStatus, Order
-from .serializers import CustomerSignUpSerializer, OrderSerializer
+from .serializers import CustomerSignUpSerializer, OrderSerializer, OrderSerializerReadOnly
 
 
 class HomePageView(APIView):
@@ -30,9 +30,11 @@ class HomePageView(APIView):
                 customer = Customer.objects.filter(username=data.get('username'))
                 provider = Provider.objects.filter(username=data.get('username'))
                 if customer:
-                    return Response(data={'username': customer[0].username, 'id': customer[0].id}, status=status.HTTP_200_OK)
+                    return Response(data={'username': customer[0].username, 'id': customer[0].id},
+                                    status=status.HTTP_200_OK)
                 if provider:
-                    return Response(data={'username': provider[0].username, 'id': provider[0].id}, status=status.HTTP_200_OK)
+                    return Response(data={'username': provider[0].username, 'id': provider[0].id},
+                                    status=status.HTTP_200_OK)
 
                 return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
             except (InvalidSignatureError, ExpiredSignatureError):
@@ -96,7 +98,11 @@ class LoginView(APIView):
                                    key=str(os.getenv('TOKEN_SECRET_KEY')))
 
                 response.set_cookie('token', token, httponly=True, samesite=None)
-                response.data = {'username': user.username, 'isCustomer': data['isCustomer'], 'id': user.id}
+                response.data = {'username': user.username,
+                                 'isCustomer': data['isCustomer'],
+                                 'id': user.id,
+                                 'first_name': user.first_name,
+                                 'last_name': user.last_name}
                 response.status_code = status.HTTP_200_OK
                 return response
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
@@ -130,6 +136,7 @@ class LogoutView(APIView):
 class OrderView(APIView):
     def post(self, request):
         data = request.data
+        data['customer'] = data['customer']['id']
         serializer = OrderSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -140,5 +147,5 @@ class OrderView(APIView):
 
     def get(self, request):
         orders = Order.objects.filter(status=OrderStatus.READY)
-        serializer = OrderSerializer(orders, many=True)
+        serializer = OrderSerializerReadOnly(orders, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

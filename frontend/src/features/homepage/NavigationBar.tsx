@@ -6,17 +6,23 @@ import notifications from './../../assets/notify.svg'
 import orders_ico from './../../assets/orders.svg';
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {selectIsCustomer} from "../customer/customerSlice";
-import {selectLatitude, selectLongitude, selectShowOrderDetailsCard, updateShowOrderDetailsCard} from "./homeSlice";
+import {
+    selectLatitude,
+    selectLongitude,
+    selectShowOrderDetailsCard,
+    updateOrderId,
+    updateShowOrderDetailsCard
+} from "./homeSlice";
 import {OrderComponent} from "../order/OrderComponent";
 import {OrderType} from "../utils/types";
 
 type IProps = {
-    username: string,
+    username?: string,
     isAuthenticated: boolean,
     orders: OrderType[],
 }
 
-function getDistance(lat1: number | undefined, lat2: number | undefined, lon1: number | undefined, lon2: number | undefined) {
+export function getDistance(lat1: number | undefined, lat2: number | undefined, lon1: number | undefined, lon2: number | undefined) {
     if (!lat1 || !lat2 || !lon1 || !lon2) {
         return 0;
     }
@@ -42,12 +48,14 @@ export function NavigationBar({username, isAuthenticated, orders}: IProps) {
     const dispatch = useAppDispatch();
     const updateVisibility = () => {
         setVisibility(visibility.visibility === "hidden" ? {visibility: "visible"} : {visibility: "hidden"});
-        if (showOrderDetailsCard){
+        if (showOrderDetailsCard) {
             dispatch(updateShowOrderDetailsCard(false))
         }
     }
-    const showOrderDetails = () => {
+    const showOrderDetails = (event: React.MouseEvent<HTMLElement>) => {
         dispatch(updateShowOrderDetailsCard(true));
+        const target = event.target as HTMLParagraphElement
+        dispatch(updateOrderId(+target.id))
     }
     if (!isAuthenticated) {
         return (
@@ -91,7 +99,8 @@ export function NavigationBar({username, isAuthenticated, orders}: IProps) {
                                         const [lat, long] = order.location.split(',');
                                         return <OrderComponent key={id}
                                                                distance={getDistance(latitude, parseFloat(lat), longitude, parseFloat(long)).toFixed(2)}
-                                                               showOrderDetails={showOrderDetails}/>
+                                                               showOrderDetails={showOrderDetails}
+                                                               id={id}/>
                                     })}
                                 </div>
                             </li>

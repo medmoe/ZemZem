@@ -1,3 +1,9 @@
+export interface CustomerType {
+    first_name: string,
+    last_name: string,
+    id: number,
+}
+
 export interface OrderType {
     phoneNumber: string,
     quantity: number,
@@ -7,9 +13,10 @@ export interface OrderType {
     specialInstructions: string,
     showOrder?: boolean,
     created?: string,
-    customer?: number,
+    customer?: CustomerType,
     deliveredAt?: string,
     id?: number,
     provider?: number,
     status?: string,
 }
+

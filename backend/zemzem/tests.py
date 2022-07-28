@@ -63,9 +63,11 @@ class OrderTests(APITestCase):
                                                 password=create_hash("customer-pass"))
 
     def test_user_can_create_order(self):
-        order = {'customer': self.customer.id,
+        order = {'customer': {'id': self.customer.id,
+                              'first_name': self.customer.first_name,
+                              'last_name': self.customer.last_name},
                  'phoneNumber': "555-555-5555",
-                 'quantity': '1000',
+                 'quantity': 1000,
                  'isPotable': True,
                  'specialInstructions': "please get me water soon",
                  'location': '112,102',
@@ -75,7 +77,7 @@ class OrderTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         orders = Order.objects.filter(status=OrderStatus.READY)
         self.assertTrue(orders)
-        self.assertEqual(orders[0].quantity, "1000")
+        self.assertEqual(orders[0].quantity, 1000)
 
     def test_user_can_retrieve_ready_orders(self):
         response = self.client.get('/order/')

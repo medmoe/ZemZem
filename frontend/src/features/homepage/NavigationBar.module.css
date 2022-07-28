@@ -61,7 +61,7 @@
     background-color: #f36400;
     overflow: scroll;
     overflow-x: hidden;
-    overflow-y: hidden;
+    height: 40vh;
 }
 .dropDownContainer p {
     display: block;
@@ -71,4 +71,17 @@
 .dropDownContainer p:hover {
     cursor: pointer;
     background-color: #f34400;
+}
+
+.dropDownContainer::-webkit-scrollbar {
+  width: 0.2em;
+}
+
+.dropDownContainer::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.dropDownContainer::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  outline: 1px solid red;
 }

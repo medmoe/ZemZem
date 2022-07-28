@@ -2,16 +2,16 @@ import React, {FormEvent, useEffect, useState} from 'react'
 import axios from "axios";
 import '../../App.css'
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {selectCustomerId, selectShowOrderForm, updateShowOrderForm} from "../customer/customerSlice";
+import {selectCustomerInfo, selectShowOrderForm, updateShowOrderForm} from "../customer/customerSlice";
 import styles from './OrderForm.module.css';
 import {selectLatitude, selectLongitude} from "../homepage/homeSlice";
 
-import {OrderType} from "../utils/types";
+import {OrderType, CustomerType} from "../utils/types";
 
 let socket: WebSocket;
 
 export function OrderForm() {
-    const id = useAppSelector(selectCustomerId);
+    const customerInfo = useAppSelector(selectCustomerInfo);
     const [orderFormData, setOrderFormData] = useState<OrderType>({
         phoneNumber: "N/A",
         quantity: 100,
@@ -19,7 +19,7 @@ export function OrderForm() {
         location: "N/A",
         hasLocation: false,
         specialInstructions: "N/A",
-        customer: id,
+        customer: customerInfo,
     })
     const latitude = useAppSelector(selectLatitude);
     const longitude = useAppSelector(selectLongitude);

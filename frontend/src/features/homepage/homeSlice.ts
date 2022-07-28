@@ -1,23 +1,27 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../../app/store"
+import {OrderType} from "../utils/types";
+import {action} from "@storybook/addon-actions";
 
 export interface HomeState {
     hasLocation: boolean,
     latitude?: number,
     longitude?: number,
     showOrderDetailsCard: boolean,
+    orders: OrderType[],
+    orderId?: number,
 }
 
-const initialState: HomeState = {hasLocation: false, showOrderDetailsCard: false}
+const initialState: HomeState = {hasLocation: false, showOrderDetailsCard: false, orders:[]}
 
 export const homeSlice = createSlice({
     name: 'home',
     initialState,
     reducers: {
-        updateLatitude : (state, action: PayloadAction<number>) => {
+        updateLatitude: (state, action: PayloadAction<number>) => {
             state.latitude = action.payload;
         },
-        updateLongitude : (state, action: PayloadAction<number>) => {
+        updateLongitude: (state, action: PayloadAction<number>) => {
             state.longitude = action.payload;
         },
         updateHasLocation: (state, action: PayloadAction<boolean>) => {
@@ -25,6 +29,12 @@ export const homeSlice = createSlice({
         },
         updateShowOrderDetailsCard: (state, action: PayloadAction<boolean>) => {
             state.showOrderDetailsCard = action.payload;
+        },
+        updateOrders: (state, action: PayloadAction<OrderType[]>) => {
+            state.orders = action.payload;
+        },
+        updateOrderId: (state, action: PayloadAction<number>) => {
+            state.orderId = action.payload;
         }
     }
 })
@@ -33,7 +43,16 @@ export const selectLatitude = (state: RootState) => state.home.latitude;
 export const selectLongitude = (state: RootState) => state.home.longitude;
 export const selectHasLocation = (state: RootState) => state.home.hasLocation;
 export const selectShowOrderDetailsCard = (state: RootState) => state.home.showOrderDetailsCard;
+export const selectOrders = (state: RootState) => state.home.orders;
+export const selectOrderId = (state: RootState) => state.home.orderId;
 
-export const {updateLatitude, updateLongitude, updateHasLocation, updateShowOrderDetailsCard} = homeSlice.actions;
+export const {
+    updateLatitude,
+    updateLongitude,
+    updateHasLocation,
+    updateShowOrderDetailsCard,
+    updateOrders,
+    updateOrderId,
+} = homeSlice.actions;
 
 export default homeSlice.reducer;

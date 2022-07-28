@@ -3,7 +3,7 @@ import axios from "axios";
 import {LoginForm} from "./LoginForm";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../app/hooks";
-import {updateIsAuthenticated, updateUsername, updateIsCustomer, updateCustomerId} from "./customerSlice";
+import {updateIsAuthenticated, updateUsername, updateIsCustomer, updateCustomerInfo} from "./customerSlice";
 import styles from "./Customer.module.css";
 import {updateHasLocation, updateLatitude, updateLongitude} from "../homepage/homeSlice";
 
@@ -15,7 +15,7 @@ interface CustomerLoginData {
 
 let location: [boolean, number, number] = [false, 0, 0];
 
-export function getLocation(arr: [boolean, number, number]){
+export function getLocation(arr: [boolean, number, number]) {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
             arr[0] = true;
@@ -24,7 +24,7 @@ export function getLocation(arr: [boolean, number, number]){
         }, () => {
             console.log("cannot get geolocation!");
         });
-    }else{
+    } else {
         console.log("browser does not support geolocation!");
     }
 }
@@ -45,7 +45,11 @@ export function CustomerLogin() {
                     dispatch(updateIsAuthenticated(true));
                     dispatch(updateIsCustomer(customerLoginData.isCustomer))
                     dispatch(updateUsername(res.data.username));
-                    dispatch(updateCustomerId(res.data.id));
+                    dispatch(updateCustomerInfo({
+                        id: res.data.id,
+                        first_name: res.data.first_name,
+                        last_name: res.data.last_name,
+                    }))
                     navigate('/');
                 })
                 .catch((err) => {
@@ -72,7 +76,11 @@ export function CustomerLogin() {
                 dispatch(updateUsername(res.data.username));
                 dispatch(updateIsCustomer(res.data.isCustomer));
                 dispatch(updateIsAuthenticated(true));
-                dispatch(updateCustomerId(res.data.id))
+                dispatch(updateCustomerInfo({
+                    id: res.data.id,
+                    first_name: res.data.first_name,
+                    last_name: res.data.last_name,
+                }))
                 getLocation(location);
                 dispatch(updateHasLocation(location[0]))
                 dispatch(updateLongitude(location[1]))

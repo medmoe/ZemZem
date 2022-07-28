@@ -3,6 +3,7 @@ import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {updateIsAuthenticated, selectIsCustomer, selectUsername} from "./customerSlice";
+import {updateOrders} from "../homepage/homeSlice";
 
 export function CustomerLogout() {
     const navigate = useNavigate();
@@ -22,6 +23,7 @@ export function CustomerLogout() {
             await axios.post('http://localhost:8000/logout/', JSON.stringify(data), options)
                 .then((res) => {
                     dispatch(updateIsAuthenticated(false));
+                    dispatch(updateOrders([]));
                     navigate('/');
                 })
                 .catch((err) => {
