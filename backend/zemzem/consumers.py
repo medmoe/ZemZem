@@ -3,7 +3,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 
-class NotifyConsumer(WebsocketConsumer):
+class NotifyProvidersConsumer(WebsocketConsumer):
     def connect(self):
         self.providers_group = 'providers'
 
@@ -34,3 +34,33 @@ class NotifyConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'order': event['order']
         }))
+
+
+class NotifyCustomersConsumer(WebsocketConsumer):
+    def connect(self):
+        self.customers_group = 'customers'
+
+        async_to_sync(self.channel_layer.group_add)(
+            self.customers_group,
+            self.channel_name,
+        )
+        self.accept()
+
+    def disconnect(self, code):
+        async_to_sync(self.channel_layer.group_discard)(
+            self.customers_group,
+            self.channel_name,
+        )
+
+    def receive(self, text_data=None, bytes_data=None):
+        data = json.loads(text_data)
+        async_to_sync(self.channel_layer.group_send)(
+            self.customers_group,
+            {
+                'type': 'notify_customers',
+                'data': data
+            }
+        )
+
+    def notify_customers(self, event):
+        self.send(text_data=json.dumps({'data': event['data']}))

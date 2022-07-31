@@ -15,7 +15,7 @@
     padding: 5px;
     border: none;
     border-radius: 5px;
-    box-shadow: 5px 5px 5px black;
+    /*box-shadow: 5px 5px 5px black;*/
 }
 .container button:hover {
     cursor: pointer;

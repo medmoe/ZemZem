@@ -5,14 +5,15 @@ import styles from './NavigationBar.module.css';
 import notifications from './../../assets/notify.svg'
 import orders_ico from './../../assets/orders.svg';
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {selectIsCustomer} from "../customer/customerSlice";
+import {selectIsCustomer, selectShowOrderForm} from "../user/userSlice";
 import {
     selectLatitude,
     selectLongitude,
     selectShowOrderDetailsCard,
     updateOrderId,
-    updateShowOrderDetailsCard
+    updateShowOrderDetailsCard,
 } from "./homeSlice";
+import { updateShowOrderForm} from "../user/userSlice";
 import {OrderComponent} from "../order/OrderComponent";
 import {OrderType} from "../utils/types";
 
@@ -44,6 +45,7 @@ export function NavigationBar({username, isAuthenticated, orders}: IProps) {
     const latitude = useAppSelector(selectLatitude);
     const longitude = useAppSelector(selectLongitude);
     const showOrderDetailsCard = useAppSelector(selectShowOrderDetailsCard);
+    const showOrderForm = useAppSelector(selectShowOrderForm);
     const [visibility, setVisibility] = useState<CSSProperties>({visibility: 'hidden'})
     const dispatch = useAppDispatch();
     const updateVisibility = () => {
@@ -106,9 +108,9 @@ export function NavigationBar({username, isAuthenticated, orders}: IProps) {
                             </li>
                             :
                             <li>
-                                <div id={styles['orders']}>
-                                    <p>Orders</p>
-                                    <img src={orders_ico} alt="orders" id={styles["notifications"]}/>
+                                <div id={styles['orders']} onClick={ () => dispatch(updateShowOrderForm(!showOrderForm))}>
+                                    <p>Order Now!</p>
+                                    <img src={orders_ico} alt="orders" id={styles["notifications-truck"]}/>
                                 </div>
                             </li>
                         }

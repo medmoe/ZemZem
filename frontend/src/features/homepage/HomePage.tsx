@@ -7,14 +7,21 @@ import {
     updateIsAuthenticated,
     updateUsername,
     selectIsCustomer, selectShowOrderForm
-} from "../customer/customerSlice";
+} from "../user/userSlice";
 import {OrderForm} from "../order/OrderForm";
 import axios from "axios";
 import {OrderType} from "../utils/types";
 import {OrderDetailCard} from "../order/OrderDetailCard";
-import {selectOrderId, selectOrders, selectShowOrderDetailsCard, updateOrders} from "./homeSlice";
-
-// let socket: WebSocket;
+import {
+    selectAcceptedOrders,
+    selectOrderId,
+    selectOrders,
+    selectShowOrderDetailsCard,
+    updateAcceptedOrders,
+    updateOrders
+} from "./homeSlice";
+import styles from './HomePage.module.css';
+import del from './../../assets/delete.png'
 
 interface Response {
     order: OrderType,
@@ -29,6 +36,7 @@ export function HomePage() {
     const showOrderDetailsCard = useAppSelector(selectShowOrderDetailsCard);
     const orders = useAppSelector(selectOrders);
     const orderId = useAppSelector(selectOrderId);
+    const acceptedOrders = useAppSelector(selectAcceptedOrders);
     useEffect(() => {
         const authenticate = async () => {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
@@ -47,7 +55,6 @@ export function HomePage() {
             const getOrders = async () => {
                 await axios.get('http://localhost:8000/order/', {withCredentials: true})
                     .then((res) => {
-                        console.log(res.data)
                         dispatch(updateOrders([...orders, ...res.data]))
                     })
                     .catch((err) => {
@@ -71,6 +78,13 @@ export function HomePage() {
         }
 
     }, [orders, isAuthenticated])
+
+    const removeAcceptedOrder = (event: React.MouseEvent<HTMLElement>) => {
+        const target = event.target as HTMLElement
+        dispatch(updateAcceptedOrders(acceptedOrders ? acceptedOrders.filter((acceptedOrder, id) => {
+            return id !== +target.id;
+        }) : []))
+    }
     return (
         <div>
             <div>
@@ -85,10 +99,41 @@ export function HomePage() {
                                  location={orders[orderId].location}
                                  hasLocation={orders[orderId].hasLocation}
                                  specialInstructions={orders[orderId].specialInstructions}
-                                 customer={orders[orderId].customer}/>}
+                                 user={orders[orderId].user}/>}
 
+            {isAuthenticated && !isCustomer && <div className={styles.acceptedOrders_container}>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>Phone Number</th>
+                        <th>Quantity</th>
+                        <th>Potable</th>
+                        <th>Location</th>
+                        <th>Special Instructions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {acceptedOrders?.map((acceptedOrder, id) => {
+                        return <tr key={id}>
+                            <td>{acceptedOrder.user?.first_name}</td>
+                            <td>{acceptedOrder.user?.last_name}</td>
+                            <td>{acceptedOrder.phoneNumber}</td>
+                            <td>{acceptedOrder.quantity}</td>
+                            <td>{acceptedOrder.isPotable ? "YES" : "NO"}</td>
+                            <td>"N/A"</td>
+                            <td>{acceptedOrder.specialInstructions}</td>
+                            <td id={styles['icon']}><img src={del} alt="delete" id={id + ""}
+                                                         onClick={removeAcceptedOrder}/></td>
 
+                        </tr>
+                    })}
+                    </tbody>
+
+                </table>
+            </div>}
         </div>
 
-    )
+    );
 }

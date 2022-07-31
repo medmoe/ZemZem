@@ -3,8 +3,8 @@ import axios from "axios";
 import {LoginForm} from "./LoginForm";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../app/hooks";
-import {updateIsAuthenticated, updateUsername, updateIsCustomer, updateCustomerInfo} from "./customerSlice";
-import styles from "./Customer.module.css";
+import {updateIsAuthenticated, updateUsername, updateIsCustomer, updateUserInfo} from "./userSlice";
+import styles from "./User.module.css";
 import {updateHasLocation, updateLatitude, updateLongitude} from "../homepage/homeSlice";
 
 interface CustomerLoginData {
@@ -29,7 +29,7 @@ export function getLocation(arr: [boolean, number, number]) {
     }
 }
 
-export function CustomerLogin() {
+export function UserLogin() {
     const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({
         password: "",
         username: "",
@@ -45,10 +45,11 @@ export function CustomerLogin() {
                     dispatch(updateIsAuthenticated(true));
                     dispatch(updateIsCustomer(customerLoginData.isCustomer))
                     dispatch(updateUsername(res.data.username));
-                    dispatch(updateCustomerInfo({
+                    dispatch(updateUserInfo({
                         id: res.data.id,
                         first_name: res.data.first_name,
                         last_name: res.data.last_name,
+                        phone_number: res.data.phone_number,
                     }))
                     navigate('/');
                 })
@@ -76,10 +77,11 @@ export function CustomerLogin() {
                 dispatch(updateUsername(res.data.username));
                 dispatch(updateIsCustomer(res.data.isCustomer));
                 dispatch(updateIsAuthenticated(true));
-                dispatch(updateCustomerInfo({
+                dispatch(updateUserInfo({
                     id: res.data.id,
                     first_name: res.data.first_name,
                     last_name: res.data.last_name,
+                    phone_number: res.data.phone_number,
                 }))
                 getLocation(location);
                 dispatch(updateHasLocation(location[0]))

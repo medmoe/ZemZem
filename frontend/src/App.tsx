@@ -1,12 +1,12 @@
 import React from 'react';
-import {CustomerRegistration} from "./features/customer/CustomerRegistration";
+import {UserRegistration} from "./features/user/UserRegistration";
 import './App.css';
-import {CustomerLogin} from "./features/customer/CustomerLogin";
+import {UserLogin} from "./features/user/UserLogin";
 import {Route, Routes, Navigate} from "react-router-dom";
 import {HomePage} from "./features/homepage/HomePage";
 import { useAppSelector} from "./app/hooks";
-import { selectIsAuthenticated } from "./features/customer/customerSlice";
-import {CustomerLogout} from "./features/customer/CustomerLogout";
+import { selectIsAuthenticated } from "./features/user/userSlice";
+import {UserLogout} from "./features/user/UserLogout";
 
 function App() {
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -15,9 +15,9 @@ function App() {
                 <div className="App">
                     <Routes>
                         <Route path="/" element={<HomePage/>}/>
-                        <Route path="/signup" element={isAuthenticated?<Navigate to="/" />: <CustomerRegistration />}/>
-                        <Route path="/login" element= {isAuthenticated?<Navigate to="/" />:<CustomerLogin />} />
-                        <Route path="/logout" element={<CustomerLogout />} />
+                        <Route path="/signup" element={isAuthenticated?<Navigate to="/" />: <UserRegistration />}/>
+                        <Route path="/login" element= {isAuthenticated?<Navigate to="/" />:<UserLogin />} />
+                        <Route path="/logout" element={<UserLogout />} />
                     </Routes>
                 </div>
             </header>

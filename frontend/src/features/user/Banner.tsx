@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Customer.module.css'
+import styles from './User.module.css'
 
 type IProps = {
     message:string;

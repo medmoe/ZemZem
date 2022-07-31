@@ -1,6 +1,7 @@
-export interface CustomerType {
+export interface UserType {
     first_name: string,
     last_name: string,
+    phone_number?: string,
     id: number,
 }
 
@@ -13,7 +14,7 @@ export interface OrderType {
     specialInstructions: string,
     showOrder?: boolean,
     created?: string,
-    customer?: CustomerType,
+    user?: UserType,
     deliveredAt?: string,
     id?: number,
     provider?: number,

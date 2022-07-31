@@ -10,6 +10,7 @@ export interface HomeState {
     showOrderDetailsCard: boolean,
     orders: OrderType[],
     orderId?: number,
+    acceptedOrders?: OrderType[],
 }
 
 const initialState: HomeState = {hasLocation: false, showOrderDetailsCard: false, orders:[]}
@@ -35,7 +36,10 @@ export const homeSlice = createSlice({
         },
         updateOrderId: (state, action: PayloadAction<number>) => {
             state.orderId = action.payload;
-        }
+        },
+        updateAcceptedOrders: (state, action: PayloadAction<OrderType[]>) => {
+            state.acceptedOrders = action.payload;
+        },
     }
 })
 
@@ -45,7 +49,7 @@ export const selectHasLocation = (state: RootState) => state.home.hasLocation;
 export const selectShowOrderDetailsCard = (state: RootState) => state.home.showOrderDetailsCard;
 export const selectOrders = (state: RootState) => state.home.orders;
 export const selectOrderId = (state: RootState) => state.home.orderId;
-
+export const selectAcceptedOrders = (state: RootState) => state.home.acceptedOrders;
 export const {
     updateLatitude,
     updateLongitude,
@@ -53,6 +57,7 @@ export const {
     updateShowOrderDetailsCard,
     updateOrders,
     updateOrderId,
+    updateAcceptedOrders,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

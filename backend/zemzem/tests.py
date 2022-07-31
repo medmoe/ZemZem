@@ -9,9 +9,9 @@ class AccountTests(APITestCase):
     def setUp(self):
         _ = Customer.objects.create(first_name="first_name",
                                     last_name="last_name",
-                                    email="customer@test.com",
+                                    email="user@test.com",
                                     username="customer_username",
-                                    password=create_hash("customer-pass"))
+                                    password=create_hash("user-pass"))
         _ = Provider.objects.create(first_name="first_name",
                                     last_name="last_name",
                                     email="provider@test.com",
@@ -37,7 +37,7 @@ class AccountTests(APITestCase):
             response = self.client.post('/login/', data=data, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        helper({"username": "customer_username", "password": "customer-pass", "isCustomer": True})
+        helper({"username": "customer_username", "password": "user-pass", "isCustomer": True})
         helper({"username": "provider_username", "password": "provider-pass", "isCustomer": False})
 
     def test_users_can_logout(self):
@@ -50,7 +50,7 @@ class AccountTests(APITestCase):
             response = self.client.get('/home/')
             self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        helper({"username": "customer_username", "password": "customer-pass", "isCustomer": True})
+        helper({"username": "customer_username", "password": "user-pass", "isCustomer": True})
         helper({"username": "provider_username", "password": "provider-pass", "isCustomer": False})
 
 
@@ -58,12 +58,12 @@ class OrderTests(APITestCase):
     def setUp(self):
         self.customer = Customer.objects.create(first_name="first_name",
                                                 last_name="last_name",
-                                                email="customer@test.com",
+                                                email="user@test.com",
                                                 username="customer_username",
-                                                password=create_hash("customer-pass"))
+                                                password=create_hash("user-pass"))
 
     def test_user_can_create_order(self):
-        order = {'customer': {'id': self.customer.id,
+        order = {'user': {'id': self.customer.id,
                               'first_name': self.customer.first_name,
                               'last_name': self.customer.last_name},
                  'phoneNumber': "555-555-5555",

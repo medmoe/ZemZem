@@ -1,5 +1,5 @@
 import React, {FormEvent} from 'react'
-import styles from "./Customer.module.css";
+import styles from "./User.module.css";
 import '../../App.css';
 import {NavigationBar} from "../homepage/NavigationBar";
 

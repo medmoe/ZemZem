@@ -25,6 +25,7 @@ class Provider(models.Model):
     last_name = models.CharField(max_length=200)
     username = models.CharField(max_length=200, unique=True)
     email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=50)
     password = models.TextField()
     is_locked = models.BooleanField(default=True)
     is_available = models.BooleanField(default=False)

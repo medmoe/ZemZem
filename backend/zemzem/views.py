@@ -30,10 +30,18 @@ class HomePageView(APIView):
                 customer = Customer.objects.filter(username=data.get('username'))
                 provider = Provider.objects.filter(username=data.get('username'))
                 if customer:
-                    return Response(data={'username': customer[0].username, 'id': customer[0].id},
+                    return Response(data={'username': customer[0].username,
+                                          'id': customer[0].id,
+                                          'first_name': customer[0].first_name,
+                                          'last_name': customer[0].last_name,
+                                          'phone_number': None},
                                     status=status.HTTP_200_OK)
                 if provider:
-                    return Response(data={'username': provider[0].username, 'id': provider[0].id},
+                    return Response(data={'username': provider[0].username,
+                                          'id': provider[0].id,
+                                          'first_name': provider[0].first_name,
+                                          'last_name': provider[0].last_name,
+                                          'phone_number': provider[0].phone_number},
                                     status=status.HTTP_200_OK)
 
                 return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -74,6 +82,7 @@ class CustomerSignUpView(APIView):
 class LoginView(APIView):
     def post(self, request):
         data = request.data
+        phone_number = None
         error_message = {
             'Message': 'Credentials are incorrect!',
             'username': data['username'],
@@ -85,6 +94,7 @@ class LoginView(APIView):
                 user = Customer.objects.get(username=data['username'])
             else:
                 user = Provider.objects.get(username=data['username'])
+                phone_number = user.phone_number
                 _, _ = Provider.objects.update_or_create(
                     username=data['username'], defaults={'is_available': True}
                 )
@@ -102,7 +112,8 @@ class LoginView(APIView):
                                  'isCustomer': data['isCustomer'],
                                  'id': user.id,
                                  'first_name': user.first_name,
-                                 'last_name': user.last_name}
+                                 'last_name': user.last_name,
+                                 'phone_number': phone_number}
                 response.status_code = status.HTTP_200_OK
                 return response
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
@@ -136,7 +147,8 @@ class LogoutView(APIView):
 class OrderView(APIView):
     def post(self, request):
         data = request.data
-        data['customer'] = data['customer']['id']
+        print(data)
+        data['customer'] = data['user']['id']
         serializer = OrderSerializer(data=data)
         if serializer.is_valid():
             serializer.save()

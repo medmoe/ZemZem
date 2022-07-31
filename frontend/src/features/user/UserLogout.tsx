@@ -2,10 +2,10 @@ import React, {useEffect} from 'react'
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {updateIsAuthenticated, selectIsCustomer, selectUsername} from "./customerSlice";
+import {updateIsAuthenticated, selectIsCustomer, selectUsername} from "./userSlice";
 import {updateOrders} from "../homepage/homeSlice";
 
-export function CustomerLogout() {
+export function UserLogout() {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const options = {
