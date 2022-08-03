@@ -21,7 +21,7 @@
     cursor: pointer;
     background-color: #158d06;
 }
-.container *:not(hr, button) {
+.container *:not(hr, button, .esc) {
     padding: 5px;
     background-color: transparent;
 }
@@ -37,5 +37,15 @@
 
 .container:hover {
     transform: scale(1.3);
+}
+
+.esc {
+    width: 35px;
+    height: 35px;
+    background-color: red;
+    float: right;
+}
+.esc:hover {
+    cursor: pointer;
 }
 

@@ -1,4 +1,7 @@
 import datetime
+import json
+import logging
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from .helpers import create_hash
@@ -62,10 +65,19 @@ class OrderTests(APITestCase):
                                                 username="customer_username",
                                                 password=create_hash("user-pass"))
 
+        self.provider = Provider.objects.create(first_name="provider",
+                                                last_name="provider",
+                                                email="user@test.com",
+                                                username="provider_username",
+                                                password="secret",
+                                                phone_number="555-555-5555",
+                                                rank="0:0"
+                                                )
+
     def test_user_can_create_order(self):
         order = {'user': {'id': self.customer.id,
-                              'first_name': self.customer.first_name,
-                              'last_name': self.customer.last_name},
+                          'first_name': self.customer.first_name,
+                          'last_name': self.customer.last_name},
                  'phoneNumber': "555-555-5555",
                  'quantity': 1000,
                  'isPotable': True,
@@ -82,3 +94,18 @@ class OrderTests(APITestCase):
     def test_user_can_retrieve_ready_orders(self):
         response = self.client.get('/order/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_order_can_change_state(self):
+        order = Order.objects.create(customer=self.customer,
+                                     phoneNumber="555-555-5555",
+                                     quantity=1000,
+                                     isPotable=True,
+                                     specialInstructions="please get me water soon",
+                                     location='112,102',
+                                     status=OrderStatus.READY)
+
+        response = self.client.put(f'/order/{order.pk}/',
+                                   data={'status': OrderStatus.IN_PROGRESS, 'provider': self.provider.pk},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+

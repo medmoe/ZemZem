@@ -7,6 +7,7 @@ import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from rest_framework import status
 from rest_framework.response import Response
@@ -147,7 +148,6 @@ class LogoutView(APIView):
 class OrderView(APIView):
     def post(self, request):
         data = request.data
-        print(data)
         data['customer'] = data['user']['id']
         serializer = OrderSerializer(data=data)
         if serializer.is_valid():
@@ -161,3 +161,20 @@ class OrderView(APIView):
         orders = Order.objects.filter(status=OrderStatus.READY)
         serializer = OrderSerializerReadOnly(orders, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class OrderDetailView(APIView):
+    @staticmethod
+    def get_object(pk, is_order=True):
+        try:
+            return Order.objects.get(pk=pk) if is_order else Provider.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            raise Http404
+
+    def put(self, request, pk):
+        order = self.get_object(pk)
+        order.status = request.data['status']
+        order.provider = self.get_object(request.data['provider'], is_order=False)
+        order.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)

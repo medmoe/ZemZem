@@ -11,7 +11,7 @@ import {
 import {OrderForm} from "../order/OrderForm";
 import axios from "axios";
 import {OrderType} from "../utils/types";
-import {OrderDetailCard} from "../order/OrderDetailCard";
+import {ProviderOrderDetailsCard} from "../order/ProviderOrderDetailsCard";
 import {
     selectAcceptedOrders,
     selectOrderId,
@@ -28,7 +28,8 @@ interface Response {
 }
 
 export function HomePage() {
-    const socket = useRef<WebSocket | null>(null);
+    const toProvider = useRef<WebSocket | null>(null);
+    const fromProvider = useRef<WebSocket | null>(null);
     const dispatch = useAppDispatch();
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const username = useAppSelector(selectUsername);
@@ -66,14 +67,23 @@ export function HomePage() {
     }, [isAuthenticated])
     useEffect(() => {
         if (isAuthenticated && !isCustomer) {
-            socket.current = new WebSocket("ws://localhost:8000/ws/notify-providers/");
-            socket.current?.addEventListener('message', (event) => {
+            fromProvider.current = new WebSocket("ws://localhost:8000/ws/notify-customers/");
+            toProvider.current = new WebSocket("ws://localhost:8000/ws/notify-providers/");
+            toProvider.current?.addEventListener('message', (event) => {
                 const response: Response = JSON.parse(event.data);
                 dispatch(updateOrders([...orders, {...response.order, showOrder: true}]));
             })
-            const wsCurrent = socket.current;
+            fromProvider.current?.addEventListener('message', (event) => {
+                const res = JSON.parse(event.data);
+                dispatch(updateOrders(orders.filter((order) => {
+                    return order.id !== res.data.id
+                })))
+            })
+            const toProviderCurrent = toProvider.current;
+            const fromProviderCurrent = fromProvider.current;
             return () => {
-                wsCurrent?.close();
+                toProviderCurrent?.close();
+                fromProviderCurrent?.close();
             }
         }
 
@@ -93,13 +103,14 @@ export function HomePage() {
             {isAuthenticated && isCustomer && <OrderForm/>}
 
             {!isCustomer && showOrderDetailsCard && (orderId === 0 || orderId) &&
-                <OrderDetailCard phoneNumber={orders[orderId].phoneNumber}
-                                 quantity={orders[orderId].quantity}
-                                 isPotable={orders[orderId].isPotable}
-                                 location={orders[orderId].location}
-                                 hasLocation={orders[orderId].hasLocation}
-                                 specialInstructions={orders[orderId].specialInstructions}
-                                 user={orders[orderId].user}/>}
+                <ProviderOrderDetailsCard phoneNumber={orders[orderId].phoneNumber}
+                                          quantity={orders[orderId].quantity}
+                                          isPotable={orders[orderId].isPotable}
+                                          location={orders[orderId].location}
+                                          hasLocation={orders[orderId].hasLocation}
+                                          specialInstructions={orders[orderId].specialInstructions}
+                                          customer={orders[orderId].customer}
+                                          id={orders[orderId].id}/>}
 
             {isAuthenticated && !isCustomer && <div className={styles.acceptedOrders_container}>
                 <table>
@@ -117,8 +128,8 @@ export function HomePage() {
                     <tbody>
                     {acceptedOrders?.map((acceptedOrder, id) => {
                         return <tr key={id}>
-                            <td>{acceptedOrder.user?.first_name}</td>
-                            <td>{acceptedOrder.user?.last_name}</td>
+                            <td>{acceptedOrder.customer?.first_name}</td>
+                            <td>{acceptedOrder.customer?.last_name}</td>
                             <td>{acceptedOrder.phoneNumber}</td>
                             <td>{acceptedOrder.quantity}</td>
                             <td>{acceptedOrder.isPotable ? "YES" : "NO"}</td>

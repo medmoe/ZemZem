@@ -14,10 +14,10 @@ export interface OrderType {
     specialInstructions: string,
     showOrder?: boolean,
     created?: string,
-    user?: UserType,
+    customer?: UserType,
     deliveredAt?: string,
     id?: number,
-    provider?: number,
+    provider?: UserType,
     status?: string,
 }
 

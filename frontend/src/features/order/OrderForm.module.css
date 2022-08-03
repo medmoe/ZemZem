@@ -68,3 +68,33 @@
     transform: rotate(360deg);
   }
 }
+
+.container {
+  width: 90%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  max-width: 1024px;
+}
+
+.order {
+  width: 100px;
+  padding: 8px;
+  background-color: #f36400;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  border-radius: 5px;
+  margin: auto;
+
+}
+.order p {
+  background-color: transparent;
+  margin: auto;
+  color: white;
+}
+
+.order:hover {
+  cursor: pointer;
+  background-color: #f34400;
+}

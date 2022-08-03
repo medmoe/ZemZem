@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../../app/store";
-import {UserType} from "../utils/types";
+import {OrderType, UserType} from "../utils/types";
 import {action} from "@storybook/addon-actions";
 
 export interface CustomerState {
@@ -10,14 +10,16 @@ export interface CustomerState {
     userInfo?: UserType;
     showOrderForm: boolean;
     showLoader: boolean;
-    showProviderInfo: boolean;
+    showOrderInfo: boolean;
+    orders: OrderType[];
 }
 
 const initialState: CustomerState = {
     isAuthenticated: false,
     showOrderForm: false,
     showLoader: false,
-    showProviderInfo: false,
+    showOrderInfo: false,
+    orders: [],
 }
 
 export const userSlice = createSlice({
@@ -42,8 +44,11 @@ export const userSlice = createSlice({
         updateShowLoader: (state, action: PayloadAction<boolean>) => {
             state.showLoader = action.payload;
         },
-        updateShowProviderInfo: (state, action: PayloadAction<boolean>) => {
-            state.showProviderInfo = action.payload;
+        updateShowOrderInfo: (state, action: PayloadAction<boolean>) => {
+            state.showOrderInfo = action.payload;
+        },
+        updateOrders: (state, action: PayloadAction<OrderType[]>) => {
+            state.orders = action.payload;
         }
     }
 })
@@ -54,7 +59,8 @@ export const selectIsCustomer = (state: RootState) => state.user.isCustomer;
 export const selectUserInfo = (state: RootState) => state.user.userInfo;
 export const selectShowOrderForm = (state: RootState) => state.user.showOrderForm;
 export const selectShowLoader = (state: RootState) => state.user.showLoader;
-export const selectShowProviderInfo = (state: RootState) => state.user.showProviderInfo;
+export const selectShowOrderInfo = (state: RootState) => state.user.showOrderInfo;
+export const selectOrders = (state: RootState) => state.user.orders;
 
 export const {
     updateUsername,
@@ -63,6 +69,7 @@ export const {
     updateUserInfo,
     updateShowOrderForm,
     updateShowLoader,
-    updateShowProviderInfo,
+    updateShowOrderInfo,
+    updateOrders,
 } = userSlice.actions;
 export default userSlice.reducer;

@@ -13,8 +13,9 @@ import {
 } from "../homepage/homeSlice";
 import {getDistance} from "../homepage/NavigationBar";
 import {selectUserInfo} from "../user/userSlice";
+import axios from "axios";
 
-export function OrderDetailCard ({phoneNumber, quantity, isPotable, specialInstructions, location, hasLocation, user}:OrderType) {
+export function ProviderOrderDetailsCard ({phoneNumber, quantity, isPotable, specialInstructions, location, hasLocation, customer, id}:OrderType) {
     const socket = useRef<WebSocket | null>(null);
     const latitude = useAppSelector(selectLatitude);
     const longitude = useAppSelector(selectLongitude);
@@ -36,22 +37,21 @@ export function OrderDetailCard ({phoneNumber, quantity, isPotable, specialInstr
             isPotable: isPotable,
             specialInstructions: specialInstructions,
             location: location,
-            user: user,
+            customer: customer,
             hasLocation: hasLocation,
+            provider: provider,
+            id:id,
         }
         dispatch(updateAcceptedOrders(acceptedOrders?[...acceptedOrders, order]: [order]));
         dispatch(updateShowOrderDetailsCard(false));
-        socket.current?.send(JSON.stringify({
-            'customer': user,
-            'provider': provider,
-        }));
+        socket.current?.send(JSON.stringify(order));
     }
     return (
         <div className={styles.container}>
             <h1>Details</h1>
             <h2>Customer information</h2>
-            <p><span>First name:</span> {user?.first_name}</p>
-            <p><span>Last name:</span> {user?.last_name}</p>
+            <p><span>First name:</span> {customer?.first_name}</p>
+            <p><span>Last name:</span> {customer?.last_name}</p>
             <p><span>Phone number:</span>{phoneNumber}</p>
             <hr/>
             <h2>Order information</h2>
@@ -66,10 +66,10 @@ export function OrderDetailCard ({phoneNumber, quantity, isPotable, specialInstr
 
 /*
 The provider accepts the order X
-notify the owner of the order:
+notify the owner of the order: X
 added the order to the queue of the provider X
-update the order status in the database
+update the order status in the database X
 remove the order from the list of orders
-added the order to the queue of the user
+added the order to the queue of the user X
 
 * */
