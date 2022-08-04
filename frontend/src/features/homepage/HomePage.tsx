@@ -6,7 +6,7 @@ import {
     selectUsername,
     updateIsAuthenticated,
     updateUsername,
-    selectIsCustomer, selectShowOrderForm
+    selectIsCustomer, updateIsCustomer,
 } from "../user/userSlice";
 import {OrderForm} from "../order/OrderForm";
 import axios from "axios";
@@ -44,6 +44,7 @@ export function HomePage() {
                 .then((res) => {
                     dispatch(updateIsAuthenticated(true));
                     dispatch(updateUsername(res.data.username));
+                    dispatch(updateIsCustomer(res.data.is_customer));
                 })
                 .catch((err) => {
                     console.log("Unauthorized");

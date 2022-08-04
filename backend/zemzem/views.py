@@ -18,6 +18,12 @@ from .serializers import CustomerSignUpSerializer, OrderSerializer, OrderSeriali
 
 
 class HomePageView(APIView):
+    def get_object(self, username, is_customer=True):
+        try:
+            return Customer.objects.get(username=username) if is_customer else Provider.objects.get(username=username)
+        except ObjectDoesNotExist:
+            raise Http404
+
     def get(self, request):
         cookie = request.headers.get('Cookie')
         if cookie:
@@ -28,24 +34,26 @@ class HomePageView(APIView):
                     token = value.strip()
             try:
                 data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
-                customer = Customer.objects.filter(username=data.get('username'))
-                provider = Provider.objects.filter(username=data.get('username'))
-                if customer:
-                    return Response(data={'username': customer[0].username,
-                                          'id': customer[0].id,
-                                          'first_name': customer[0].first_name,
-                                          'last_name': customer[0].last_name,
-                                          'phone_number': None},
+                if data['is_customer']:
+                    customer = self.get_object(data['username'])
+                    return Response(data={'username': customer.username,
+                                          'id': customer.id,
+                                          'first_name': customer.first_name,
+                                          'last_name': customer.last_name,
+                                          'phone_number': None,
+                                          'is_customer': True,
+                                          },
                                     status=status.HTTP_200_OK)
-                if provider:
-                    return Response(data={'username': provider[0].username,
-                                          'id': provider[0].id,
-                                          'first_name': provider[0].first_name,
-                                          'last_name': provider[0].last_name,
-                                          'phone_number': provider[0].phone_number},
+                else:
+                    provider = self.get_object(data['username'], is_customer=False)
+                    return Response(data={'username': provider.username,
+                                          'id': provider.id,
+                                          'first_name': provider.first_name,
+                                          'last_name': provider.last_name,
+                                          'phone_number': provider.phone_number,
+                                          'is_customer': False},
                                     status=status.HTTP_200_OK)
 
-                return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
             except (InvalidSignatureError, ExpiredSignatureError):
                 return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
@@ -103,6 +111,7 @@ class LoginView(APIView):
             digest = hashlib.pbkdf2_hmac(hash_func, data['password'].encode(), salt.encode(), 10000)
             if digest.hex() == hash:
                 token = jwt.encode(payload={'username': user.username,
+                                            'is_customer': data['isCustomer'],
                                             'email': user.email,
                                             'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(
                                                 minutes=30)},
