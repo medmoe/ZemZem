@@ -18,10 +18,14 @@ import {
     selectOrders,
     selectShowOrderDetailsCard,
     updateAcceptedOrders,
-    updateOrders
+    updateOrders,
+    updateShowSatisfactionForm,
+    selectShowSatisfactionForm,
 } from "./homeSlice";
 import styles from './HomePage.module.css';
-import del from './../../assets/delete.png'
+import del from './../../assets/delete.png';
+import star from './../../assets/star.png';
+import {SatisfactionForm} from "../user/SatisfactionForm";
 
 interface Response {
     order: OrderType,
@@ -38,6 +42,7 @@ export function HomePage() {
     const orders = useAppSelector(selectOrders);
     const orderId = useAppSelector(selectOrderId);
     const acceptedOrders = useAppSelector(selectAcceptedOrders);
+    const showSatisfactionForm = useAppSelector(selectShowSatisfactionForm);
     useEffect(() => {
         const authenticate = async () => {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
@@ -95,6 +100,10 @@ export function HomePage() {
         dispatch(updateAcceptedOrders(acceptedOrders ? acceptedOrders.filter((acceptedOrder, id) => {
             return id !== +target.id;
         }) : []))
+        dispatch(updateShowSatisfactionForm(true))
+    }
+    const submitFeedback = (event: React.FormEvent) => {
+        dispatch(updateShowSatisfactionForm(false))
     }
     return (
         <div>
@@ -113,38 +122,40 @@ export function HomePage() {
                                           customer={orders[orderId].customer}
                                           id={orders[orderId].id}/>}
 
-            {isAuthenticated && !isCustomer && <div className={styles.acceptedOrders_container}>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>First name</th>
-                        <th>Last name</th>
-                        <th>Phone Number</th>
-                        <th>Quantity</th>
-                        <th>Potable</th>
-                        <th>Location</th>
-                        <th>Special Instructions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {acceptedOrders?.map((acceptedOrder, id) => {
-                        return <tr key={id}>
-                            <td>{acceptedOrder.customer?.first_name}</td>
-                            <td>{acceptedOrder.customer?.last_name}</td>
-                            <td>{acceptedOrder.phoneNumber}</td>
-                            <td>{acceptedOrder.quantity}</td>
-                            <td>{acceptedOrder.isPotable ? "YES" : "NO"}</td>
-                            <td>"N/A"</td>
-                            <td>{acceptedOrder.specialInstructions}</td>
-                            <td id={styles['icon']}><img src={del} alt="delete" id={id + ""}
-                                                         onClick={removeAcceptedOrder}/></td>
-
+            {isAuthenticated && !isCustomer && !showSatisfactionForm &&
+                <div className={styles.acceptedOrders_container}>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>First name</th>
+                            <th>Last name</th>
+                            <th>Phone Number</th>
+                            <th>Quantity</th>
+                            <th>Potable</th>
+                            <th>Location</th>
+                            <th>Special Instructions</th>
                         </tr>
-                    })}
-                    </tbody>
+                        </thead>
+                        <tbody>
+                        {acceptedOrders?.map((acceptedOrder, id) => {
+                            return <tr key={id}>
+                                <td>{acceptedOrder.customer?.first_name}</td>
+                                <td>{acceptedOrder.customer?.last_name}</td>
+                                <td>{acceptedOrder.phoneNumber}</td>
+                                <td>{acceptedOrder.quantity}</td>
+                                <td>{acceptedOrder.isPotable ? "YES" : "NO"}</td>
+                                <td>"N/A"</td>
+                                <td>{acceptedOrder.specialInstructions}</td>
+                                <td id={styles['icon']}><img src={del} alt="delete" id={id + ""}
+                                                             onClick={removeAcceptedOrder}/></td>
 
-                </table>
-            </div>}
+                            </tr>
+                        })}
+                        </tbody>
+
+                    </table>
+                </div>}
+            {isAuthenticated && !isCustomer && showSatisfactionForm && <SatisfactionForm submitFeedback={submitFeedback}/>}
         </div>
 
     );

@@ -63,13 +63,3 @@ export function ProviderOrderDetailsCard ({phoneNumber, quantity, isPotable, spe
         </div>
     )
 }
-
-/*
-The provider accepts the order X
-notify the owner of the order: X
-added the order to the queue of the provider X
-update the order status in the database X
-remove the order from the list of orders
-added the order to the queue of the user X
-
-* */

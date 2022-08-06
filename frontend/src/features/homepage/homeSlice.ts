@@ -11,9 +11,10 @@ export interface HomeState {
     orders: OrderType[],
     orderId?: number,
     acceptedOrders?: OrderType[],
+    showSatisfactionForm: boolean,
 }
 
-const initialState: HomeState = {hasLocation: false, showOrderDetailsCard: false, orders:[]}
+const initialState: HomeState = {hasLocation: false, showOrderDetailsCard: false, orders:[], showSatisfactionForm: false}
 
 export const homeSlice = createSlice({
     name: 'home',
@@ -40,6 +41,9 @@ export const homeSlice = createSlice({
         updateAcceptedOrders: (state, action: PayloadAction<OrderType[]>) => {
             state.acceptedOrders = action.payload;
         },
+        updateShowSatisfactionForm: (state, action: PayloadAction<boolean>) => {
+            state.showSatisfactionForm = action.payload;
+        }
     }
 })
 
@@ -50,6 +54,7 @@ export const selectShowOrderDetailsCard = (state: RootState) => state.home.showO
 export const selectOrders = (state: RootState) => state.home.orders;
 export const selectOrderId = (state: RootState) => state.home.orderId;
 export const selectAcceptedOrders = (state: RootState) => state.home.acceptedOrders;
+export const selectShowSatisfactionForm = (state: RootState) => state.home.showSatisfactionForm;
 export const {
     updateLatitude,
     updateLongitude,
@@ -58,6 +63,7 @@ export const {
     updateOrders,
     updateOrderId,
     updateAcceptedOrders,
+    updateShowSatisfactionForm,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

@@ -4,7 +4,10 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  background-color: #24252A;
+
+}
+body {
+    background-color: #24252A;
 }
 
 li, a, button {
@@ -31,7 +34,6 @@ li, a, button {
   width: 100%;
   border: solid 2px #edf0f1;
   padding: .5rem;
-  color: #edf0f1;
   border-radius: 5px;
 }
 .zem-forms input[type="radio"]{
@@ -50,7 +52,6 @@ textarea {
     width: 100%;
     border: solid 2px #edf0f1;
     padding: .5rem;
-    color: #edf0f1;
     border-radius: 5px;
 }
 .zem-forms input[type="radio"]:checked{
