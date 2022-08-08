@@ -62,6 +62,7 @@ export function HomePage() {
             const getOrders = async () => {
                 await axios.get('http://localhost:8000/order/', {withCredentials: true})
                     .then((res) => {
+                        console.log(res)
                         dispatch(updateOrders([...orders, ...res.data]))
                     })
                     .catch((err) => {

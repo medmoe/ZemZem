@@ -1,7 +1,6 @@
 import json
-from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
-from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from .serializers import OrderSerializer

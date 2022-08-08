@@ -85,7 +85,8 @@ export function OrderForm() {
     }
     const showOrderDetails = (event: React.MouseEvent) => {
         const target = event.target as HTMLElement
-        setOrderToShow(orders[+target.id])
+        const index = target.getAttribute("data-key") as string
+        setOrderToShow(orders[parseInt(index)])
         dispatch(updateShowOrderInfo(true))
 
     }
@@ -129,8 +130,8 @@ export function OrderForm() {
                 />
                 :
                 orders.map((order, id) => {
-                    return <div key={id} className={styles.order} onClick={showOrderDetails} id={id + ""}>
-                        <p>Order {id + 1}</p>
+                    return <div key={id} className={styles.order} onClick={showOrderDetails}>
+                        <p data-key={id}>Order {id + 1}</p>
                     </div>
                 })
             }

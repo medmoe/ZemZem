@@ -1,5 +1,5 @@
 import React from 'react';
-import {Queries, render, RenderOptions} from '@testing-library/react';
+import {getByAltText, Queries, render, RenderOptions} from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { store } from '../../app/store';
 import {NavigationBar} from "./NavigationBar";
@@ -31,12 +31,12 @@ describe("navigation bar", () => {
     })
     describe("logo", () =>{
         it("should be displayed", () => {
-            const { getByRole } = render(
+            const { getByAltText } = render(
                 <Provider store={store}>
                     <NavigationBar username={"username"} isAuthenticated={true} orders={[]}/>
                 </Provider> , options
             )
-            const logo = getByRole('img');
+            const logo = getByAltText("logo")
             expect(logo).toHaveAttribute('src', 'ZemZem.png');
             expect(logo).toHaveAttribute('alt', 'logo');
         })

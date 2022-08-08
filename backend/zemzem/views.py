@@ -155,35 +155,7 @@ class LogoutView(APIView):
 
 
 class OrderView(APIView):
-    def post(self, request):
-        data = request.data
-        data['customer'] = data['user']['id']
-        serializer = OrderSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            print(serializer.errors)
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     def get(self, request):
         orders = Order.objects.filter(status=OrderStatus.READY)
         serializer = OrderSerializerReadOnly(orders, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-
-class OrderDetailView(APIView):
-    @staticmethod
-    def get_object(pk, is_order=True):
-        try:
-            return Order.objects.get(pk=pk) if is_order else Provider.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            raise Http404
-
-    def put(self, request, pk):
-        order = self.get_object(pk)
-        order.status = request.data['status']
-        order.provider = self.get_object(request.data['provider'], is_order=False)
-        order.save()
-        serializer = OrderSerializer(order)
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
