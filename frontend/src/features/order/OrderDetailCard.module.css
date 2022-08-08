@@ -1,0 +1,51 @@
+.container {
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    background-color: #f36400;
+    width: 60%;
+    margin: auto;
+    transition-property: transform;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in-out;
+}
+.container button {
+    background-color: #25ad16;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    /*box-shadow: 5px 5px 5px black;*/
+}
+.container button:hover {
+    cursor: pointer;
+    background-color: #158d06;
+}
+.container *:not(hr, button, .esc) {
+    padding: 5px;
+    background-color: transparent;
+}
+
+.container hr {
+    width: 60%;
+    margin: auto;
+    color: #24252A;
+}
+.container span {
+    font-weight: bold;
+}
+
+.container:hover {
+    transform: scale(1.3);
+}
+
+.esc {
+    width: 35px;
+    height: 35px;
+    background-color: red;
+    float: right;
+}
+.esc:hover {
+    cursor: pointer;
+}
+

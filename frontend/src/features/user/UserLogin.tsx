@@ -3,8 +3,9 @@ import axios from "axios";
 import {LoginForm} from "./LoginForm";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../app/hooks";
-import {updateIsAuthenticated, updateUsername} from "./customerSlice";
-import styles from "./Customer.module.css";
+import {updateIsAuthenticated, updateUsername, updateIsCustomer, updateUserInfo} from "./userSlice";
+import styles from "./User.module.css";
+import {updateHasLocation, updateLatitude, updateLongitude} from "../homepage/homeSlice";
 
 interface CustomerLoginData {
     username: string;
@@ -12,8 +13,28 @@ interface CustomerLoginData {
     isCustomer: boolean;
 }
 
-export function CustomerLogin() {
-    const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({password: "", username: "", isCustomer: true})
+let location: [boolean, number, number] = [false, 0, 0];
+
+export function getLocation(arr: [boolean, number, number]) {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            arr[0] = true;
+            arr[1] = position.coords.latitude;
+            arr[2] = position.coords.longitude;
+        }, () => {
+            console.log("cannot get geolocation!");
+        });
+    } else {
+        console.log("browser does not support geolocation!");
+    }
+}
+
+export function UserLogin() {
+    const [customerLoginData, setCustomerLoginData] = useState<CustomerLoginData>({
+        password: "",
+        username: "",
+        isCustomer: true
+    })
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -22,7 +43,14 @@ export function CustomerLogin() {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
                 .then((res) => {
                     dispatch(updateIsAuthenticated(true));
+                    dispatch(updateIsCustomer(customerLoginData.isCustomer))
                     dispatch(updateUsername(res.data.username));
+                    dispatch(updateUserInfo({
+                        id: res.data.id,
+                        first_name: res.data.first_name,
+                        last_name: res.data.last_name,
+                        phone_number: res.data.phone_number,
+                    }))
                     navigate('/');
                 })
                 .catch((err) => {
@@ -31,6 +59,10 @@ export function CustomerLogin() {
                 })
         }
         call();
+        getLocation(location);
+        dispatch(updateHasLocation(location[0]))
+        dispatch(updateLongitude(location[1]))
+        dispatch(updateLatitude(location[2]))
     }, [errorMessage])
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -42,8 +74,19 @@ export function CustomerLogin() {
         }
         await axios.post("http://localhost:8000/login/", JSON.stringify(customerLoginData), options)
             .then((res) => {
-                dispatch(updateUsername(customerLoginData.username));
+                dispatch(updateUsername(res.data.username));
+                dispatch(updateIsCustomer(res.data.isCustomer));
                 dispatch(updateIsAuthenticated(true));
+                dispatch(updateUserInfo({
+                    id: res.data.id,
+                    first_name: res.data.first_name,
+                    last_name: res.data.last_name,
+                    phone_number: res.data.phone_number,
+                }))
+                getLocation(location);
+                dispatch(updateHasLocation(location[0]))
+                dispatch(updateLongitude(location[1]))
+                dispatch(updateLatitude(location[2]))
                 navigate('/');
             })
             .catch((err) => {

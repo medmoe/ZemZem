@@ -1,0 +1,55 @@
+.acceptedOrders_container{
+    width: 90%;
+    margin: auto;
+    font-family: "Montserrat", sans-serif;
+    justify-content: center;
+}
+
+.acceptedOrders_container table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#icon {
+    padding: 0;
+    width: 35px;
+    background-color: #25ad16;
+
+}
+#icon img {
+    width: 100%;
+    background-color: #25ad16;
+
+
+}
+#icon img:hover {
+    cursor: pointer;
+     filter: invert(100%) sepia(83%) saturate(839%) hue-rotate(78deg) brightness(111%) contrast(133%);
+}
+
+th , td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    background-color: transparent;
+}
+
+tr:nth-child(even){
+    background-color: #f2f2f2;
+}
+tr:nth-child(odd){
+    background-color: white;
+}
+tr:hover{
+    background-color: #ddd;
+}
+
+th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #25ad16;
+    color: white;
+}
+
+
+

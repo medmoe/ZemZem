@@ -3,32 +3,57 @@ import hashlib
 import jwt
 import os
 import pytz
+import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from zemzem.helpers import create_hash
-from .models import Customer, Provider
-from .serializers import CustomerSignUpSerializer
+from .helpers import create_hash
+from .models import Customer, Provider, OrderStatus, Order
+from .serializers import CustomerSignUpSerializer, OrderSerializer, OrderSerializerReadOnly
 
 
 class HomePageView(APIView):
+    def get_object(self, username, is_customer=True):
+        try:
+            return Customer.objects.get(username=username) if is_customer else Provider.objects.get(username=username)
+        except ObjectDoesNotExist:
+            raise Http404
+
     def get(self, request):
         cookie = request.headers.get('Cookie')
         if cookie:
             token = None
             for string in cookie.split(";"):
                 name, value = string.split("=")
-                if name == 'token':
-                    token = value
+                if name.strip() == 'token':
+                    token = value.strip()
             try:
                 data = jwt.decode(token, str(os.getenv('TOKEN_SECRET_KEY')), algorithms=['HS256'])
-                seconds = data.get('exp')
-                print(str(datetime.timedelta(seconds=seconds)))
-                return Response(data={'username': data.get('username')}, status=status.HTTP_200_OK)
+                if data['is_customer']:
+                    customer = self.get_object(data['username'])
+                    return Response(data={'username': customer.username,
+                                          'id': customer.id,
+                                          'first_name': customer.first_name,
+                                          'last_name': customer.last_name,
+                                          'phone_number': None,
+                                          'is_customer': True,
+                                          },
+                                    status=status.HTTP_200_OK)
+                else:
+                    provider = self.get_object(data['username'], is_customer=False)
+                    return Response(data={'username': provider.username,
+                                          'id': provider.id,
+                                          'first_name': provider.first_name,
+                                          'last_name': provider.last_name,
+                                          'phone_number': provider.phone_number,
+                                          'is_customer': False},
+                                    status=status.HTTP_200_OK)
+
             except (InvalidSignatureError, ExpiredSignatureError):
                 return Response(data={'Message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
@@ -66,6 +91,7 @@ class CustomerSignUpView(APIView):
 class LoginView(APIView):
     def post(self, request):
         data = request.data
+        phone_number = None
         error_message = {
             'Message': 'Credentials are incorrect!',
             'username': data['username'],
@@ -73,17 +99,31 @@ class LoginView(APIView):
         }
         response = Response()
         try:
-            user = Customer.objects.get(username=data['username']) if data['isCustomer'] else Provider.objects.get(username=data['username'])
+            if data['isCustomer']:
+                user = Customer.objects.get(username=data['username'])
+            else:
+                user = Provider.objects.get(username=data['username'])
+                phone_number = user.phone_number
+                _, _ = Provider.objects.update_or_create(
+                    username=data['username'], defaults={'is_available': True}
+                )
             hash_func, salt, hash = user.password.split("$")
             digest = hashlib.pbkdf2_hmac(hash_func, data['password'].encode(), salt.encode(), 10000)
             if digest.hex() == hash:
                 token = jwt.encode(payload={'username': user.username,
+                                            'is_customer': data['isCustomer'],
                                             'email': user.email,
                                             'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) + datetime.timedelta(
                                                 minutes=30)},
                                    key=str(os.getenv('TOKEN_SECRET_KEY')))
-                response.set_cookie('token', token, httponly=True)
-                response.data = {'Message': 'logged in', 'data': data}
+
+                response.set_cookie('token', token, httponly=True, samesite=None)
+                response.data = {'username': user.username,
+                                 'isCustomer': data['isCustomer'],
+                                 'id': user.id,
+                                 'first_name': user.first_name,
+                                 'last_name': user.last_name,
+                                 'phone_number': phone_number}
                 response.status_code = status.HTTP_200_OK
                 return response
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
@@ -92,15 +132,30 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    def get(self, request):
+    def post(self, request):
         data = request.data
+        if not data['isCustomer']:
+            provider, _ = Provider.objects.update_or_create(
+                username=data['username'], defaults={'is_available': False})
+            payload = {'username': provider.username,
+                       'email': provider.email,
+                       'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) - datetime.timedelta(minutes=5)}
+        else:
+            customer = Customer.objects.get(username=data['username'])
+            payload = {'username': customer.username,
+                       'email': customer.email,
+                       'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) - datetime.timedelta(minutes=5)}
         response = Response()
         key = str(os.getenv('TOKEN_SECRET_KEY'))
-        payload = {'username': data.get('username', ''),
-                   'email': data.get('email', ''),
-                   'exp': datetime.datetime.now(tz=pytz.timezone('UTC')) - datetime.timedelta(minutes=5)}
         token = jwt.encode(payload=payload, key=key)
         response.set_cookie('token', token, httponly=True)
         response.data = {'Message': 'logged out successfully!'}
         response.status_code = status.HTTP_200_OK
         return response
+
+
+class OrderView(APIView):
+    def get(self, request):
+        orders = Order.objects.filter(status=OrderStatus.READY)
+        serializer = OrderSerializerReadOnly(orders, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

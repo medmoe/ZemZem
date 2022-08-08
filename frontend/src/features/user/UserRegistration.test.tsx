@@ -2,7 +2,7 @@ import React from 'react'
 import {cleanup, render, screen} from "@testing-library/react";
 import {Provider} from "react-redux";
 import {store} from '../../app/store';
-import {CustomerRegistration} from "./CustomerRegistration";
+import {UserRegistration} from "./UserRegistration";
 import userEvent from "@testing-library/user-event";
 import * as router from 'react-router';
 import {options} from "../utils/tests";
@@ -23,7 +23,7 @@ describe("Customer registration", () => {
         cleanup();
         server.resetHandlers();
         jest.spyOn(router, 'useNavigate').mockImplementation(() => navigate)
-        const { container }  = render(<Provider store={store}><CustomerRegistration /></Provider> , options)
+        const { container }  = render(<Provider store={store}><UserRegistration /></Provider> , options)
         button = screen.getByRole('button', {name:/submit/i})
         first_name = container.querySelector("#first_name");
         last_name = container.querySelector("#last_name");

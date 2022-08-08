@@ -4,7 +4,10 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  background-color: #24252A;
+
+}
+body {
+    background-color: #24252A;
 }
 
 li, a, button {
@@ -13,4 +16,68 @@ li, a, button {
   font-size: 16px;
   color: #edf0f1;
   text-decoration: none;
+}
+
+.zem-forms{
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+.zem-forms label{
+  display: block;
+  padding: 1rem .25rem;
+  text-transform: uppercase;
+  color: #edf0f1;
+}
+.zem-forms input{
+  display: block;
+  width: 100%;
+  border: solid 2px #edf0f1;
+  padding: .5rem;
+  border-radius: 5px;
+}
+.zem-forms input[type="radio"]{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  padding: 3px;
+  border: 2px solid #edf0f1;
+  border-radius: 50%;
+  margin-right: 0;
+}
+textarea {
+    width: 100%;
+    border: solid 2px #edf0f1;
+    padding: .5rem;
+    border-radius: 5px;
+}
+.zem-forms input[type="radio"]:checked{
+  background-color: #25ad16;
+}
+fieldset {
+  border: none;
+}
+fieldset label {
+  float: left
+}
+fieldset span {
+  margin-left: 15px;
+}
+#submit_btn{
+    border: 0;
+    background: #25ad16;
+    padding: .5rem;
+    color: #edf0f1;
+    width: 5rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: bold;
+    float: right;
+    margin-top: 1rem;
+}
+#submit_btn:hover{
+    background: #158d06;
 }

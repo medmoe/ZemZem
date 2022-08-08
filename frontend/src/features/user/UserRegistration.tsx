@@ -1,9 +1,9 @@
 import React, {FormEvent, useEffect, useState} from 'react';
 import axios from "axios";
-import styles from './Customer.module.css';
+import styles from './User.module.css';
 import {Banner} from "./Banner";
 import {RegistrationForm} from "./RegistrationForm";
-import {updateIsAuthenticated, updateUsername} from "./customerSlice";
+import {updateIsAuthenticated, updateUsername} from "./userSlice";
 import {useAppDispatch} from "../../app/hooks";
 import {useNavigate} from "react-router-dom";
 
@@ -16,7 +16,7 @@ interface CustomerData {
     pass2?: string,
 }
 
-export function CustomerRegistration() {
+export function UserRegistration() {
     let initialState: CustomerData = {
         "first_name": "",
         "last_name": "",

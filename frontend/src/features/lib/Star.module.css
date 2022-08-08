@@ -1,0 +1,15 @@
+
+.star_container {
+    display: flex;
+}
+
+.star_container img {
+    background-color: transparent;
+    width: 35px;
+    height: 35px;
+}
+
+.star_container img:hover {
+    cursor: pointer;
+    filter: invert(79%) sepia(87%) saturate(2647%) hue-rotate(351deg) brightness(98%) contrast(106%);
+}

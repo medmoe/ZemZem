@@ -2,7 +2,7 @@ import React from 'react';
 import {render, waitFor, screen, fireEvent, cleanup} from '@testing-library/react';
 import {Provider} from "react-redux";
 import {store} from '../../app/store'
-import {CustomerLogin} from "./CustomerLogin";
+import {UserLogin} from "./UserLogin";
 import {server} from '../../mocks/server';
 import {options} from '../utils/tests'
 import userEvent from '@testing-library/user-event'
@@ -19,7 +19,7 @@ describe("Customer login", () => {
         server.resetHandlers();
         cleanup();
         jest.spyOn(router, 'useNavigate').mockImplementation(() => navigate)
-        const {container}  = render(<Provider store={store}><CustomerLogin /></Provider> , options)
+        const {container}  = render(<Provider store={store}><UserLogin /></Provider> , options)
         button = screen.getByRole('button', {name:/submit/i})
         username = screen.getByRole('textbox');
         password = container.querySelector("#password");

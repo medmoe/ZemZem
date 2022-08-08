@@ -1,6 +1,6 @@
 import React from 'react'
 import {ComponentStory, ComponentMeta} from "@storybook/react";
-import {LoginForm} from "../../features/customer/LoginForm";
+import {LoginForm} from "../../features/user/LoginForm";
 import {withRouter} from "storybook-addon-react-router-v6";
 
 export default {
