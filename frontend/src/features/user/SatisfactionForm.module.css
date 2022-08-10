@@ -4,11 +4,13 @@
     border: 2px solid white;
     padding: 20px
 }
+.satisfaction_form * {
+    margin-top: 5%;
+}
 .stars{
     display: flex;
     width: 35%;
     margin: auto;
-    padding: 10px 0 10px 0;
 }
 
 .satisfaction_form p {
@@ -17,7 +19,6 @@
     color: white;
     text-transform: uppercase;
     letter-spacing: 3px;
-    padding: 10px 0 10px 0;
 }
 
 .satisfaction_form input[type=text]{
@@ -40,6 +41,18 @@
 .satisfaction_form input[type=submit]:hover {
     background-color: #158d06;
     cursor: pointer;
+}
+.satisfaction_form label {
+    color: white;
+    margin-left: 2%;
+}
+.satisfaction_form input[type=checkbox] {
+    width: 20px;
+    height: 20px;
+    margin-left: 5%;
+}
+.satisfaction_form input[type=checkbox]:checked {
+    color: #25ad16;
 }
 
 

@@ -3,7 +3,6 @@ import hashlib
 import jwt
 import os
 import pytz
-import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
@@ -159,3 +158,28 @@ class OrderView(APIView):
         orders = Order.objects.filter(status=OrderStatus.READY)
         serializer = OrderSerializerReadOnly(orders, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class ProviderDetailView(APIView):
+    def put(self, request, pk):
+        try:
+            provider = Provider.objects.get(pk=pk)
+            order = Order.objects.get(pk=request.data['order_id'])
+            is_delivered = request.data.get("isDelivered", False)
+            comment = request.data.get("comment", "N/A")
+            stars, voters = provider.get_rank()
+            stars = int(stars) + request.data.get("stars", 0)
+            voters = int(voters) + 1
+            provider.rank = f'{stars}:{voters}'
+            order.providerComment = comment
+            if is_delivered:
+                order.deliveredAt = datetime.datetime.now(tz=pytz.timezone("UTC"))
+                order.wasDelivered = True
+                order.status = OrderStatus.SERVED
+            else:
+                order.status = OrderStatus.FAILED
+            provider.save()
+            order.save()
+            return Response(data={'message': 'updated successfully'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            raise Http404

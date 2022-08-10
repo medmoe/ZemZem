@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../../app/store"
-import {OrderType} from "../utils/types";
+import {OrderType, SatisfactionFormDataType} from "../utils/types";
 import {action} from "@storybook/addon-actions";
 
 export interface HomeState {
@@ -12,9 +12,20 @@ export interface HomeState {
     orderId?: number,
     acceptedOrders?: OrderType[],
     showSatisfactionForm: boolean,
+    satisfactionFormData: SatisfactionFormDataType,
 }
 
-const initialState: HomeState = {hasLocation: false, showOrderDetailsCard: false, orders:[], showSatisfactionForm: false}
+const initialState: HomeState = {
+    hasLocation: false,
+    showOrderDetailsCard: false,
+    orders:[],
+    showSatisfactionForm: false,
+    satisfactionFormData: {
+        stars: 0,
+        isDelivered: false,
+        comment: "",
+    }
+}
 
 export const homeSlice = createSlice({
     name: 'home',
@@ -43,7 +54,10 @@ export const homeSlice = createSlice({
         },
         updateShowSatisfactionForm: (state, action: PayloadAction<boolean>) => {
             state.showSatisfactionForm = action.payload;
-        }
+        },
+        updateSatisfactionFormData: (state, action:PayloadAction<SatisfactionFormDataType>) => {
+            state.satisfactionFormData = action.payload;
+        },
     }
 })
 
@@ -55,6 +69,7 @@ export const selectOrders = (state: RootState) => state.home.orders;
 export const selectOrderId = (state: RootState) => state.home.orderId;
 export const selectAcceptedOrders = (state: RootState) => state.home.acceptedOrders;
 export const selectShowSatisfactionForm = (state: RootState) => state.home.showSatisfactionForm;
+export const selectSatisfactionFormData = (state: RootState) => state.home.satisfactionFormData;
 export const {
     updateLatitude,
     updateLongitude,
@@ -64,6 +79,7 @@ export const {
     updateOrderId,
     updateAcceptedOrders,
     updateShowSatisfactionForm,
+    updateSatisfactionFormData,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;
