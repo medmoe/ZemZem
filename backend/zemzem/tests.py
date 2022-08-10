@@ -93,19 +93,31 @@ class OrderTests(APITestCase):
         response = self.client.get('/order/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_user_can_submit_satisfaction_form(self):
+    def test_provider_can_submit_satisfaction_form(self):
         data = {
-            "id": self.provider.pk,
-            "order_id": self.order.pk,
             "isDelivered": True,
-            "comment": "some comment",
+            "isCustomer": False,
+            "comment": "I am a provider",
+            "stars": 4,
         }
-        response = self.client.put(f'/provider/{self.provider.pk}/', data=data, format='json')
+        response = self.client.put(f'/order/{self.order.pk}/', data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         order = Order.objects.get(pk=self.order.pk)
         self.assertEqual(order.status, OrderStatus.SERVED)
         self.assertIsNotNone(order.deliveredAt)
-        self.assertTrue(order.deliveredAt)
+        self.assertTrue(order.wasDelivered)
+        customer = Customer.objects.get(pk=self.customer.pk)
+        self.assertNotEqual(customer.rank, self.customer.rank)
+
+    def test_customer_can_submit_satisfaction_form(self):
+        data = {
+            "isDelivered": True,
+            "isCustomer": True,
+            "comment": "I am a customer",
+            "stars": 5
+        }
+        response = self.client.put(f'/order/{self.order.pk}/', data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         provider = Provider.objects.get(pk=self.provider.pk)
         self.assertNotEqual(provider.rank, self.provider.rank)
 

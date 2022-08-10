@@ -25,6 +25,6 @@ export interface SatisfactionFormDataType {
     stars: number,
     isDelivered: boolean,
     comment: string,
-    order_id?: number,
+    isCustomer: boolean,
 }
 

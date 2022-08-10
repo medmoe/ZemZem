@@ -24,6 +24,7 @@ const initialState: HomeState = {
         stars: 0,
         isDelivered: false,
         comment: "",
+        isCustomer: false,
     }
 }
 

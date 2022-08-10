@@ -20,7 +20,7 @@ import {
     updateAcceptedOrders,
     updateOrders,
     updateShowSatisfactionForm,
-    selectShowSatisfactionForm, selectSatisfactionFormData, updateSatisfactionFormData,
+    selectShowSatisfactionForm, selectSatisfactionFormData, updateSatisfactionFormData, updateOrderId,
 } from "./homeSlice";
 import styles from './HomePage.module.css';
 import del from './../../assets/delete.png';
@@ -44,7 +44,6 @@ export function HomePage() {
     const acceptedOrders = useAppSelector(selectAcceptedOrders);
     const showSatisfactionForm = useAppSelector(selectShowSatisfactionForm);
     const satisfactionFormData = useAppSelector(selectSatisfactionFormData);
-    const userInfo = useAppSelector(selectUserInfo) as UserType;
     useEffect(() => {
         const authenticate = async () => {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
@@ -104,11 +103,12 @@ export function HomePage() {
         }) : []))
         const value: string | null = target.getAttribute("data-key");
         dispatch(updateShowSatisfactionForm(true))
-        dispatch(updateSatisfactionFormData({...satisfactionFormData, order_id: value?+value:-1}))
+        dispatch(updateOrderId(value ? +value : -1))
+        dispatch(updateSatisfactionFormData({...satisfactionFormData, isCustomer: false}))
     }
     const submitFeedback = (event: React.FormEvent) => {
         dispatch(updateShowSatisfactionForm(false))
-        axios.put(`http://localhost:8000/provider/${userInfo.id}/`, satisfactionFormData, {withCredentials: true})
+        axios.put(`http://localhost:8000/order/${orderId}/`, satisfactionFormData, {withCredentials: true})
             .then((res) => {
                 console.log(res)
             })
@@ -172,7 +172,8 @@ export function HomePage() {
 
                     </table>
                 </div>}
-            {isAuthenticated && !isCustomer && showSatisfactionForm && <SatisfactionForm submitFeedback={submitFeedback}/>}
+            {isAuthenticated && !isCustomer && showSatisfactionForm &&
+                <SatisfactionForm submitFeedback={submitFeedback}/>}
         </div>
 
     );

@@ -160,26 +160,38 @@ class OrderView(APIView):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class ProviderDetailView(APIView):
-    def put(self, request, pk):
+class OrderDetailView(APIView):
+    def get_object(self, pk):
         try:
-            provider = Provider.objects.get(pk=pk)
-            order = Order.objects.get(pk=request.data['order_id'])
-            is_delivered = request.data.get("isDelivered", False)
-            comment = request.data.get("comment", "N/A")
-            stars, voters = provider.get_rank()
-            stars = int(stars) + request.data.get("stars", 0)
-            voters = int(voters) + 1
-            provider.rank = f'{stars}:{voters}'
-            order.providerComment = comment
-            if is_delivered:
-                order.deliveredAt = datetime.datetime.now(tz=pytz.timezone("UTC"))
-                order.wasDelivered = True
-                order.status = OrderStatus.SERVED
-            else:
-                order.status = OrderStatus.FAILED
-            provider.save()
-            order.save()
-            return Response(data={'message': 'updated successfully'}, status=status.HTTP_200_OK)
+            return Order.objects.get(pk=pk)
         except ObjectDoesNotExist:
             raise Http404
+
+    def set_rank(self, user, stars_to_add):
+        stars, voters = user.get_rank()
+        stars = int(stars) + stars_to_add
+        voters = int(voters) + 1
+        user.rank = f'{stars}:{voters}'
+        user.save()
+
+    def put(self, request, pk):
+        order = self.get_object(pk)
+        customer, provider = order.customer, order.provider
+        is_delivered = request.data.get("isDelivered", False)
+        comment = request.data.get("comment", "N/A")
+        is_customer = request.data.get("isCustomer", False)
+        stars = request.data.get("stars", 0)
+        if is_customer:
+            self.set_rank(provider, stars)
+            order.customerComment = comment
+        else:
+            self.set_rank(customer, stars)
+            order.providerComment = comment
+        if is_delivered:
+            order.deliveredAt = datetime.datetime.now(tz=pytz.timezone("UTC"))
+            order.wasDelivered = True
+            order.status = OrderStatus.SERVED
+        else:
+            order.status = OrderStatus.FAILED
+        order.save()
+        return Response(data={"message": "successful update"}, status=status.HTTP_200_OK)

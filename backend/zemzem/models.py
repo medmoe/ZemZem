@@ -17,7 +17,11 @@ class Customer(models.Model):
     username = models.CharField(max_length=200, unique=True)
     email = models.EmailField(unique=True)
     password = models.TextField()
+    rank = models.CharField(max_length=200, default="0:0")
     created = models.DateTimeField(auto_now_add=True)
+
+    def get_rank(self):
+        return tuple(self.rank.split(":"))
 
 
 class Provider(models.Model):
@@ -29,7 +33,7 @@ class Provider(models.Model):
     password = models.TextField()
     is_locked = models.BooleanField(default=True)
     is_available = models.BooleanField(default=False)
-    rank = models.CharField(max_length=200)
+    rank = models.CharField(max_length=200, default="0:0")
     created = models.DateField(auto_now_add=True)
 
     def get_rank(self):
