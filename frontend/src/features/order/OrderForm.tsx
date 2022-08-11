@@ -13,9 +13,16 @@ import {
 } from "../user/userSlice";
 import styles from './OrderForm.module.css';
 import detailCardStyles from './OrderDetailCard.module.css'
-import {selectLatitude, selectLongitude} from "../homepage/homeSlice";
+import {
+    selectLatitude,
+    selectLongitude, selectSatisfactionFormData,
+    selectShowSatisfactionForm, updateSatisfactionFormData,
+    updateShowSatisfactionForm
+} from "../homepage/homeSlice";
 import {OrderType, UserType} from "../utils/types";
 import {CustomerOrderDetailsCard} from "./CustomerOrderDetailsCard";
+import {SatisfactionForm} from "../user/SatisfactionForm";
+import axios from "axios";
 
 export function OrderForm() {
     const [orderToShow, setOrderToShow] = useState<OrderType | null>(null);
@@ -40,6 +47,8 @@ export function OrderForm() {
     const socketFromProvider = useRef<WebSocket | null>(null)
     const user = useAppSelector(selectUserInfo);
     const showOrderInfo = useAppSelector(selectShowOrderInfo);
+    const showSatisfactionForm = useAppSelector(selectShowSatisfactionForm);
+    const satisfactionFormData = useAppSelector(selectSatisfactionFormData);
 
     useEffect(() => {
         socketToProvider.current = new WebSocket("ws://localhost:8000/ws/notify-providers/")
@@ -90,52 +99,71 @@ export function OrderForm() {
         dispatch(updateShowOrderInfo(true))
 
     }
+    const sendFeedback = (event: React.MouseEvent) => {
+        dispatch(updateShowSatisfactionForm(true));
+        dispatch(updateShowOrderInfo(false));
+        dispatch(updateSatisfactionFormData({...satisfactionFormData, isCustomer: true}))
+        console.log(orderToShow);
+    }
+    const submitFeedback = (event: FormEvent) => {
+        const orderId = orderToShow?.id
+        axios.put(`http://localhost:8000/order/${orderId}/`, satisfactionFormData, {withCredentials: true})
+            .then((res) => {
+                dispatch(updateShowSatisfactionForm(false))
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
     return (
-        <div className={styles.container}>
-            {showOrderForm &&
-                <form className="zem-forms">
-                    <label htmlFor="phoneNumber">Phone number:</label>
-                    <input type="text" id="phoneNumber" name="phoneNumber" onChange={handleFieldChange}/>
-                    <label htmlFor="quantity">Quantity (L):</label>
-                    <input type="number" id="quantity" name="quantity" value={orderFormData.quantity}
-                           onChange={handleFieldChange}/>
-                    <fieldset>
-                        <label><input type="radio" onChange={changePotable}
-                                      checked={orderFormData.isPotable} name="isPotable"/><span>Potable</span></label>
-                        <label><input type="radio" onChange={changeNonPotable}
-                                      checked={!orderFormData.isPotable}
-                                      name="isPotable"/><span>Non-Potable</span></label>
-                    </fieldset>
-                    <label htmlFor="specialInstruction">Special instructions:</label>
-                    <textarea id="specialInstruction" name="specialInstructions" rows={10}
-                              onChange={handleFieldChange}/>
-                    <input type="submit" value="submit" id="submit_btn" onClick={submitOrderForm}/>
-                </form>
-            }
-            {showLoader &&
-                <div className={styles.loader_container}>
-                    <div className={styles.loader}></div>
-                    <p>Connecting you to a provider!!!</p>
-                </div>
-            }
-            {showOrderInfo && orderToShow ?
-                <CustomerOrderDetailsCard
-                    provider={orderToShow.provider as UserType}
-                    phoneNumber={orderToShow.phoneNumber}
-                    quantity={orderToShow.quantity}
-                    isPotable={orderToShow.isPotable}
-                    location={orderToShow.location}
-                    hasLocation={orderToShow.hasLocation}
-                    specialInstructions={orderToShow.specialInstructions}
-                />
-                :
-                orders.map((order, id) => {
-                    return <div key={id} className={styles.order} onClick={showOrderDetails}>
-                        <p data-key={id}>Order {id + 1}</p>
+        <div>
+            <div className={styles.container}>
+                {showOrderForm &&
+                    <form className="zem-forms">
+                        <label htmlFor="phoneNumber">Phone number:</label>
+                        <input type="text" id="phoneNumber" name="phoneNumber" onChange={handleFieldChange}/>
+                        <label htmlFor="quantity">Quantity (L):</label>
+                        <input type="number" id="quantity" name="quantity" value={orderFormData.quantity}
+                               onChange={handleFieldChange}/>
+                        <fieldset>
+                            <label><input type="radio" onChange={changePotable}
+                                          checked={orderFormData.isPotable}
+                                          name="isPotable"/><span>Potable</span></label>
+                            <label><input type="radio" onChange={changeNonPotable}
+                                          checked={!orderFormData.isPotable}
+                                          name="isPotable"/><span>Non-Potable</span></label>
+                        </fieldset>
+                        <label htmlFor="specialInstruction">Special instructions:</label>
+                        <textarea id="specialInstruction" name="specialInstructions" rows={10}
+                                  onChange={handleFieldChange}/>
+                        <input type="submit" value="submit" id="submit_btn" onClick={submitOrderForm}/>
+                    </form>
+                }
+                {showLoader &&
+                    <div className={styles.loader_container}>
+                        <div className={styles.loader}></div>
+                        <p>Connecting you to a provider!!!</p>
                     </div>
-                })
+                }
+                {showOrderInfo && orderToShow ?
+                    <CustomerOrderDetailsCard
+                        sendFeedback={sendFeedback}
+                        order={orderToShow}
+                    />
+                    :
+                    orders.map((order, id) => {
+                        return <div key={id} className={styles.order} onClick={showOrderDetails}>
+                            <p data-key={id}>Order {id + 1}</p>
+                        </div>
+                    })
+                }
+            </div>
+            {showSatisfactionForm &&
+                <SatisfactionForm
+                    submitFeedback={submitFeedback}
+                    statement={"I received the order successfully."}
+                />
             }
-
 
         </div>
     )

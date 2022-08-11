@@ -3,7 +3,7 @@ import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {updateIsAuthenticated, selectIsCustomer, selectUsername, updateShowLoader} from "./userSlice";
-import {updateOrders} from "../homepage/homeSlice";
+import {updateOrders, updateShowOrderDetailsCard} from "../homepage/homeSlice";
 
 export function UserLogout() {
     const navigate = useNavigate();
@@ -25,6 +25,7 @@ export function UserLogout() {
                     dispatch(updateIsAuthenticated(false));
                     dispatch(updateOrders([]));
                     dispatch(updateShowLoader(false));
+                    dispatch(updateShowOrderDetailsCard(false));
 
                     navigate('/');
                 })

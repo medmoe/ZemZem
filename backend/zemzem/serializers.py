@@ -11,7 +11,7 @@ class CustomerSignUpSerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['id', 'first_name', 'last_name']
+        fields = ['id', 'first_name', 'last_name', 'rank']
 
 
 class ProviderSerializer(serializers.ModelSerializer):

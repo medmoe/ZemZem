@@ -5,10 +5,11 @@ import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {selectSatisfactionFormData, updateSatisfactionFormData} from "../homepage/homeSlice";
 
 interface PropTypes {
-    submitFeedback: (event: React.FormEvent) => void
+    submitFeedback: (event: React.FormEvent) => void;
+    statement: string;
 }
 
-export function SatisfactionForm({submitFeedback}: PropTypes) {
+export function SatisfactionForm({submitFeedback, statement}: PropTypes) {
     const [stars, setStars] = useState<number>(0);
     const satisfactionFormData = useAppSelector(selectSatisfactionFormData);
     const dispatch = useAppDispatch()
@@ -42,7 +43,7 @@ export function SatisfactionForm({submitFeedback}: PropTypes) {
                         isDelivered: !satisfactionFormData.isDelivered
                     }))
                 }}/>
-                <label htmlFor="wasDelivered">I delivered the order successfully.</label>
+                <label htmlFor="wasDelivered">{statement}</label>
                 <input type="text" placeholder="Add a comment" name="comment" onChange={(event) => {
                     dispatch(updateSatisfactionFormData({...satisfactionFormData, comment: event.target.value}))
                 }}/>

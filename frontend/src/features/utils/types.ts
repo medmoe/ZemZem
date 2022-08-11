@@ -3,6 +3,7 @@ export interface UserType {
     last_name: string,
     phone_number?: string,
     id: number,
+    rank: string,
 }
 
 export interface OrderType {

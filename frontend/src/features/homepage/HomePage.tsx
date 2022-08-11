@@ -24,7 +24,6 @@ import {
 } from "./homeSlice";
 import styles from './HomePage.module.css';
 import del from './../../assets/delete.png';
-import star from './../../assets/star.png';
 import {SatisfactionForm} from "../user/SatisfactionForm";
 
 interface Response {
@@ -78,6 +77,7 @@ export function HomePage() {
             toProvider.current = new WebSocket("ws://localhost:8000/ws/notify-providers/");
             toProvider.current?.addEventListener('message', (event) => {
                 const response: Response = JSON.parse(event.data);
+                console.log(response.order.customer)
                 dispatch(updateOrders([...orders, {...response.order, showOrder: true}]));
             })
             fromProvider.current?.addEventListener('message', (event) => {
@@ -107,10 +107,9 @@ export function HomePage() {
         dispatch(updateSatisfactionFormData({...satisfactionFormData, isCustomer: false}))
     }
     const submitFeedback = (event: React.FormEvent) => {
-        dispatch(updateShowSatisfactionForm(false))
         axios.put(`http://localhost:8000/order/${orderId}/`, satisfactionFormData, {withCredentials: true})
             .then((res) => {
-                console.log(res)
+                dispatch(updateShowSatisfactionForm(false))
             })
             .catch((err) => {
                 console.log(err)
@@ -173,7 +172,7 @@ export function HomePage() {
                     </table>
                 </div>}
             {isAuthenticated && !isCustomer && showSatisfactionForm &&
-                <SatisfactionForm submitFeedback={submitFeedback}/>}
+                <SatisfactionForm submitFeedback={submitFeedback} statement={"I delivered the order successfully."}/>}
         </div>
 
     );

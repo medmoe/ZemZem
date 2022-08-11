@@ -41,6 +41,7 @@ class HomePageView(APIView):
                                           'last_name': customer.last_name,
                                           'phone_number': None,
                                           'is_customer': True,
+                                          'rank': customer.rank,
                                           },
                                     status=status.HTTP_200_OK)
                 else:
@@ -50,7 +51,8 @@ class HomePageView(APIView):
                                           'first_name': provider.first_name,
                                           'last_name': provider.last_name,
                                           'phone_number': provider.phone_number,
-                                          'is_customer': False},
+                                          'is_customer': False,
+                                          'rank': provider.rank},
                                     status=status.HTTP_200_OK)
 
             except (InvalidSignatureError, ExpiredSignatureError):
@@ -122,7 +124,8 @@ class LoginView(APIView):
                                  'id': user.id,
                                  'first_name': user.first_name,
                                  'last_name': user.last_name,
-                                 'phone_number': phone_number}
+                                 'phone_number': phone_number,
+                                 'rank': user.rank}
                 response.status_code = status.HTTP_200_OK
                 return response
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
