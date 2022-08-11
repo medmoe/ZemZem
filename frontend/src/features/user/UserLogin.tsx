@@ -50,6 +50,7 @@ export function UserLogin() {
                         first_name: res.data.first_name,
                         last_name: res.data.last_name,
                         phone_number: res.data.phone_number,
+                        rank: res.data.rank,
                     }))
                     navigate('/');
                 })
@@ -82,6 +83,7 @@ export function UserLogin() {
                     first_name: res.data.first_name,
                     last_name: res.data.last_name,
                     phone_number: res.data.phone_number,
+                    rank: res.data.rank,
                 }))
                 getLocation(location);
                 dispatch(updateHasLocation(location[0]))

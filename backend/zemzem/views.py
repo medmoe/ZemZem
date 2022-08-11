@@ -3,7 +3,6 @@ import hashlib
 import jwt
 import os
 import pytz
-import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
@@ -42,6 +41,7 @@ class HomePageView(APIView):
                                           'last_name': customer.last_name,
                                           'phone_number': None,
                                           'is_customer': True,
+                                          'rank': customer.rank,
                                           },
                                     status=status.HTTP_200_OK)
                 else:
@@ -51,7 +51,8 @@ class HomePageView(APIView):
                                           'first_name': provider.first_name,
                                           'last_name': provider.last_name,
                                           'phone_number': provider.phone_number,
-                                          'is_customer': False},
+                                          'is_customer': False,
+                                          'rank': provider.rank},
                                     status=status.HTTP_200_OK)
 
             except (InvalidSignatureError, ExpiredSignatureError):
@@ -123,7 +124,8 @@ class LoginView(APIView):
                                  'id': user.id,
                                  'first_name': user.first_name,
                                  'last_name': user.last_name,
-                                 'phone_number': phone_number}
+                                 'phone_number': phone_number,
+                                 'rank': user.rank}
                 response.status_code = status.HTTP_200_OK
                 return response
             return Response(data=error_message, status=status.HTTP_401_UNAUTHORIZED)
@@ -159,3 +161,40 @@ class OrderView(APIView):
         orders = Order.objects.filter(status=OrderStatus.READY)
         serializer = OrderSerializerReadOnly(orders, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class OrderDetailView(APIView):
+    def get_object(self, pk):
+        try:
+            return Order.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            raise Http404
+
+    def set_rank(self, user, stars_to_add):
+        stars, voters = user.get_rank()
+        stars = int(stars) + stars_to_add
+        voters = int(voters) + 1
+        user.rank = f'{stars}:{voters}'
+        user.save()
+
+    def put(self, request, pk):
+        order = self.get_object(pk)
+        customer, provider = order.customer, order.provider
+        is_delivered = request.data.get("isDelivered", False)
+        comment = request.data.get("comment", "N/A")
+        is_customer = request.data.get("isCustomer", False)
+        stars = request.data.get("stars", 0)
+        if is_customer:
+            self.set_rank(provider, stars)
+            order.customerComment = comment
+        else:
+            self.set_rank(customer, stars)
+            order.providerComment = comment
+        if is_delivered:
+            order.deliveredAt = datetime.datetime.now(tz=pytz.timezone("UTC"))
+            order.wasDelivered = True
+            order.status = OrderStatus.SERVED
+        else:
+            order.status = OrderStatus.FAILED
+        order.save()
+        return Response(data={"message": "successful update"}, status=status.HTTP_200_OK)

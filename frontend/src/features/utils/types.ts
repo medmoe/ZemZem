@@ -3,6 +3,7 @@ export interface UserType {
     last_name: string,
     phone_number?: string,
     id: number,
+    rank: string,
 }
 
 export interface OrderType {
@@ -19,5 +20,12 @@ export interface OrderType {
     id?: number,
     provider?: UserType,
     status?: string,
+}
+
+export interface SatisfactionFormDataType {
+    stars: number,
+    isDelivered: boolean,
+    comment: string,
+    isCustomer: boolean,
 }
 

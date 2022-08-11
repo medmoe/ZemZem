@@ -72,11 +72,10 @@
 .container {
   width: 90%;
   margin: auto;
-  display: flex;
+  display: block;
   justify-content: center;
   max-width: 1024px;
 }
-
 .order {
   width: 100px;
   padding: 8px;

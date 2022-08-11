@@ -6,11 +6,11 @@ import {
     selectUsername,
     updateIsAuthenticated,
     updateUsername,
-    selectIsCustomer, updateIsCustomer,
+    selectIsCustomer, updateIsCustomer, selectUserInfo,
 } from "../user/userSlice";
 import {OrderForm} from "../order/OrderForm";
 import axios from "axios";
-import {OrderType} from "../utils/types";
+import {OrderType, SatisfactionFormDataType, UserType} from "../utils/types";
 import {ProviderOrderDetailsCard} from "../order/ProviderOrderDetailsCard";
 import {
     selectAcceptedOrders,
@@ -20,11 +20,10 @@ import {
     updateAcceptedOrders,
     updateOrders,
     updateShowSatisfactionForm,
-    selectShowSatisfactionForm,
+    selectShowSatisfactionForm, selectSatisfactionFormData, updateSatisfactionFormData, updateOrderId,
 } from "./homeSlice";
 import styles from './HomePage.module.css';
 import del from './../../assets/delete.png';
-import star from './../../assets/star.png';
 import {SatisfactionForm} from "../user/SatisfactionForm";
 
 interface Response {
@@ -43,6 +42,7 @@ export function HomePage() {
     const orderId = useAppSelector(selectOrderId);
     const acceptedOrders = useAppSelector(selectAcceptedOrders);
     const showSatisfactionForm = useAppSelector(selectShowSatisfactionForm);
+    const satisfactionFormData = useAppSelector(selectSatisfactionFormData);
     useEffect(() => {
         const authenticate = async () => {
             await axios.get('http://localhost:8000/home/', {withCredentials: true})
@@ -62,7 +62,6 @@ export function HomePage() {
             const getOrders = async () => {
                 await axios.get('http://localhost:8000/order/', {withCredentials: true})
                     .then((res) => {
-                        console.log(res)
                         dispatch(updateOrders([...orders, ...res.data]))
                     })
                     .catch((err) => {
@@ -78,6 +77,7 @@ export function HomePage() {
             toProvider.current = new WebSocket("ws://localhost:8000/ws/notify-providers/");
             toProvider.current?.addEventListener('message', (event) => {
                 const response: Response = JSON.parse(event.data);
+                console.log(response.order.customer)
                 dispatch(updateOrders([...orders, {...response.order, showOrder: true}]));
             })
             fromProvider.current?.addEventListener('message', (event) => {
@@ -101,10 +101,19 @@ export function HomePage() {
         dispatch(updateAcceptedOrders(acceptedOrders ? acceptedOrders.filter((acceptedOrder, id) => {
             return id !== +target.id;
         }) : []))
+        const value: string | null = target.getAttribute("data-key");
         dispatch(updateShowSatisfactionForm(true))
+        dispatch(updateOrderId(value ? +value : -1))
+        dispatch(updateSatisfactionFormData({...satisfactionFormData, isCustomer: false}))
     }
     const submitFeedback = (event: React.FormEvent) => {
-        dispatch(updateShowSatisfactionForm(false))
+        axios.put(`http://localhost:8000/order/${orderId}/`, satisfactionFormData, {withCredentials: true})
+            .then((res) => {
+                dispatch(updateShowSatisfactionForm(false))
+            })
+            .catch((err) => {
+                console.log(err)
+            })
     }
     return (
         <div>
@@ -147,8 +156,14 @@ export function HomePage() {
                                 <td>{acceptedOrder.isPotable ? "YES" : "NO"}</td>
                                 <td>"N/A"</td>
                                 <td>{acceptedOrder.specialInstructions}</td>
-                                <td id={styles['icon']}><img src={del} alt="delete" id={id + ""}
-                                                             onClick={removeAcceptedOrder}/></td>
+                                <td id={styles['icon']}>
+                                    <img src={del}
+                                         alt="delete"
+                                         id={id + ""}
+                                         onClick={removeAcceptedOrder}
+                                         data-key={acceptedOrder.id + ""}
+                                    />
+                                </td>
 
                             </tr>
                         })}
@@ -156,7 +171,8 @@ export function HomePage() {
 
                     </table>
                 </div>}
-            {isAuthenticated && !isCustomer && showSatisfactionForm && <SatisfactionForm submitFeedback={submitFeedback}/>}
+            {isAuthenticated && !isCustomer && showSatisfactionForm &&
+                <SatisfactionForm submitFeedback={submitFeedback} statement={"I delivered the order successfully."}/>}
         </div>
 
     );

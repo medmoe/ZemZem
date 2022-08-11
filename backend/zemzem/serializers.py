@@ -11,7 +11,26 @@ class CustomerSignUpSerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['id', 'first_name', 'last_name']
+        fields = ['id', 'first_name', 'last_name', 'rank']
+
+
+class ProviderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Provider
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Provider.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
+        instance.username = validated_data.get("username", instance.username)
+        instance.email = validated_data.get("email", instance.email)
+        instance.phone_number = validated_data.get("phone_number", instance)
+        instance.rank = validated_data.get("rank", instance)
+        instance.save()
+        return instance
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -33,9 +52,6 @@ class OrderSerializer(serializers.ModelSerializer):
         instance.isPotable = validated_data.get('isPotable', instance.isPotable)
         instance.specialInstructions = validated_data.get('specialInstructions', instance.specialInstructions)
         instance.location = validated_data.get('location', instance.location)
-        instance.reasonOfFailure = validated_data.get('reasonOfFailure', instance.reasonOfFailure)
-        instance.deliveredAt = validated_data.get('deliveredAt', instance.deliveredAt)
-        instance.created = validated_data.get('created', instance.created)
         instance.save()
         return instance
 
