@@ -1,7 +1,53 @@
-version: "2"
+version: "3"
 services:
-  redis:
-    image: redis:4-alpine
-    restart: always
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
     volumes:
-      - ./redis.conf:/usr/local/etc/redis.conf
+      - /data/postgresql:/var/lib/postgresql/data
+    env_file: .env
+    networks:
+      - backend-net
+  redis:
+    image: redis:latest
+
+    ports:
+      - "6379:6379"
+
+    networks:
+      - backend-net
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend-net
+
+
+  frontend:
+    container_name: frontend
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    command: npm start
+    networks:
+      - backend-net
+networks:
+  backend-net:
+    driver: bridge
