@@ -6,11 +6,11 @@ import {
     selectUsername,
     updateIsAuthenticated,
     updateUsername,
-    selectIsCustomer, updateIsCustomer, selectUserInfo,
+    selectIsCustomer, updateIsCustomer,
 } from "../user/userSlice";
 import {OrderForm} from "../order/OrderForm";
 import axios from "axios";
-import {OrderType, SatisfactionFormDataType, UserType} from "../utils/types";
+import {OrderType} from "../utils/types";
 import {ProviderOrderDetailsCard} from "../order/ProviderOrderDetailsCard";
 import {
     selectAcceptedOrders,
@@ -29,7 +29,6 @@ import {SatisfactionForm} from "../user/SatisfactionForm";
 interface Response {
     order: OrderType,
 }
-
 export function HomePage() {
     const toProvider = useRef<WebSocket | null>(null);
     const fromProvider = useRef<WebSocket | null>(null);
